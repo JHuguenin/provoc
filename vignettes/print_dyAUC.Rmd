@@ -1,0 +1,13 @@
+---
+output: html_document
+---
+
+```{r, fig.width=12, fig.height=5}
+dygraph(dysp, main = titre) %>%
+    dyAxis("y", label = "Intensity (a.u.)") %>% 
+    dyAxis("x", label = paste("Time (",unit,")")) %>%
+    dyRangeSelector(keepMouseZoom = TRUE) %>%
+    dyOptions(colors = unname(AUC_col), stackedGraph = FALSE, axisLineWidth = 1.5, fillGraph = TRUE, gridLineColor = "lightblue") %>% 
+    dyLegend(show = "onmouseover", hideOnMouseOut = TRUE) %>% 
+    dyUnzoom()
+```

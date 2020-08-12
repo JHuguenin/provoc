@@ -1,0 +1,172 @@
+---
+title: "Rapport d'étalonnage pour PTR-TOF-MS"
+date:  "`r format(Sys.time(), '%d %B, %Y')`"
+output: pdf_document
+---
+
+## Introduction
+
+Ce rapport est généré automatiquement afin d'apprécier la calibration effectuée pour la masse unitaire : `r m`. Les explications de ce rapport proviennent en majorité de ce [site](https://statistique-et-logiciel-r.com/la-regression-lineaire-simple-avec-le-logiciel-r/ "La regression lineaire simple avec le logiciel R").
+
+## Evaluation visuelle de la linéarité
+
+* ligne pleine : droite de régression linéaire (définie par la méthode des moindres carrés).
+* ligne en pointillé : courbe de régression locale de type lowess.
+* lignes extérieures : intervalle de confiance de la courbe lowess.
+
+La droite de régression doit être comprise dans l’intervalle de confiance de la courbe lowess.
+
+```{r, echo=FALSE}
+scatterplot(concentration~AUC, data=cal_conc)
+```
+
+## Evaluation des hypothèses de validité des résultats
+
+Les résidus doivent être :
+
+* indépendants
+* distribués selon une loi Normale de moyenne 0
+* distribués de façon homogènes (variance constante)
+
+### Evaluation de l’hypothèse d’indépendance des résidus
+
+```{r, echo=FALSE}
+acf(residuals(cal_C))
+```
+
+* pointillées horizontaux : intervalles de confiance du coefficient de corrélation égal à 0.
+* traits verticaux : coefficients de corrélation entre les résidus de chaque point et ceux des points de la ligne suivante (lag=1), ou ceux séparés de deux lignes (lag=2), etc…
+
+Note : lors d'une acquisition de plusieurs secondes sur des échantillons statiques, il est attendu à ce que les résidus ne soient pas très indépendant. Cest le cas lors d'un échantillonage effectué avec le PTR-TOF-MS. 
+
+#### Test de Durbin-Watson
+: l’hypothèse d’indépendance des résidus est __validée__ lorsque la __p-value__ du test est __supérieure à 0.05__.
+
+```{r, echo=FALSE}
+DWt <- durbinWatsonTest (cal_C)
+dt <- cbind(DWt$r, DWt$dw, DWt$p)
+colnames(dt) <- c("Autocorrelation","D-W Statistic","p-value")
+kable(dt, format = "markdown", digits = 4, align = "c")
+```
+
+### Evaluation de l’hypothèse de normalité des résidus
+
+```{r, echo=FALSE}
+plot(cal_C,2)
+```
+
+Les résidus doivent être bien distribués le long de la droite pour valider l’hypothèse de normalité.
+
+#### Test de Shapiro
+: l’hypothèse d’indépendance des résidus est __validée__ lorsque la __p-value__ du test est __supérieure à 0.05__.
+
+```{r, echo=FALSE}
+Shap <- shapiro.test(residuals(cal_C))
+dt <- cbind(Shap$statistic, Shap$p.value)
+colnames(dt) <- c("W Statistic","p-value")
+kable(dt, format = "markdown", digits = 4, align = "c")
+```
+
+`r Shap$method`
+
+### Evaluation de l’hypothèse d’homogénéité des résidus
+
+```{r, echo=FALSE}
+plot(cal_C,3)
+```
+
+La courbe de régression locale, en rouge, doit être globalement plate (ni ascendante ni descendante).
+
+#### Test de Breush-Pagan
+: l’hypothèse d’indépendance des résidus est __validée__ lorsque la __p-value__ du test est __supérieure à 0.05__.
+
+```{r, echo=FALSE}
+BPt <- ncvTest(cal_C)
+dt <- cbind(BPt$ChiSquare, BPt$Df, BPt$p)
+colnames(dt) <- c("Chi²","Df","p-value")
+kable(dt, format = "markdown", digits = 4, align = "c")
+```
+
+`r BPt$test`
+
+### Evaluation à posteriori de l’hypothèse de linéarité
+
+Cette hypothèse peut s’évaluer sur les résidus à l’aide du plot suivant :
+ 
+```{r, echo=FALSE}
+plot(cal_C,1)
+```
+
+Les résidus doivent être globalement uniformément distribués de part et d’autre de 0.
+
+## Paramètres et tests
+
+```{r, echo=FALSE}
+summary(cal_C)
+```
+
+### Évaluation rapide de la normalité des résidus
+
+les résidus sont distribués selon une loi Normale si :
+
+* la médiane est proche de 0
+* les valeurs absolues de Q1 et Q3 sont proches
+
+### Coefficients linéaires
+
+* 1^er^ ligne : ordonnée à l’origine
+* 2^nd^ ligne : pente
+  + 1^er^ colonne : estimation des coefficients paramètriques
+  + 2^ème^ colonne : estimation de l'erreur standard
+  + 3^ème^ colonne : statistique T
+  + 4^ème^ colonne : p-value (si < 0.05, lien linéaire significatif entre la variable réponse et la variable prédictive).
+  
+### Intervalles de confiance des coefficients des paramètres
+
+```{r, echo=FALSE}
+dt <- confint(cal_C)
+kable(dt, format = "markdown", digits = 4, align = "c")
+
+```
+
+## Données influentes
+
+```{r, echo=FALSE, fig.height = 4}
+infIndexPlot(cal_C, vars=c("Cook"), id=TRUE, grid=TRUE, main="Distance de Cook")
+```
+
+* distance de Cook : évalue l’influence des données sur les paramètres de régression. La distance de Cook mesure le changement dans l’estimation des paramètres de régression lorsque la donnée n’est pas prise en compte par les moindres carrés. Plus la distance est élevée, plus la modification des paramètres de régression est importante. Le seuil de 1 est couramment utilisé pour considérer qu’une donnée est très influente.
+
+```{r, echo=FALSE, fig.height = 6}
+infIndexPlot(cal_C, vars=c("Studentized"), id=TRUE, grid=TRUE, main="Résidus studentizés")
+```
+
+* résidus studentizés : met en évidence les outliers.
+
+```{r, echo=FALSE, fig.height = 6}
+infIndexPlot(cal_C, vars=c("Bonf"),
+             id=TRUE, grid=TRUE, main="Bonferroni")
+dt <- outlierTest(cal_C, cutoff=0.5, order=TRUE)
+eph <- names(dt$rstudent) %>% as.numeric() %>% coor[.]
+dt <- data.frame(Non = names(eph), Index = eph, R_student = dt$rstudent, Bonferroni_p.value = dt$bonf.p)
+kable(dt, format = "markdown", digits = 4, align = "c", row.names = FALSE)
+```
+
+* p-value de Bonferroni : outlier potentiel si une donnée posséde une p-value inférieure à 0.05.
+
+```{r, echo=FALSE, fig.height = 6}
+infIndexPlot(cal_C, vars=c("hat"), id=TRUE, grid=TRUE, main="Hat value")
+```
+
+* hat value : reflète l’effet de levier (ou poids) de chaque donnée sur sa propre estimation. Une donnée est considérée comme atypique lorsque cette valeur est inférieure à 0.05.
+
+## Index
+```{r, echo=FALSE}
+dt <- cbind(names(coor),1:length(coor),cal_conc)
+colnames(dt) <- c("Nom","Index","Concentration","AUC")
+kable(dt, format = "markdown")
+```
+
+
+
+

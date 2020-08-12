@@ -1,0 +1,132 @@
+---
+title: "PCA"
+date:  "`r format(Sys.time(), '%d %B, %Y')`"
+output: pdf_document
+---
+```{r, echo = FALSE}
+#PCA 
+dt <- data.frame(row.names(mt$h5)[mt$acq], mt$h5[mt$acq,"nbr_MS"])
+colnames(dt) <- c("Nom de l'acquisition","Nbr de MS")
+```
+
+## Présentation du jeu de donnée
+
+Il y a `r length(mt$acq)` acquisitions différentes pour cette analyse. Le détail du nombre de spectres de masse pour chaque acquisition est donné ci-dessus :
+
+```{r, echo = FALSE, fig.align = "center"}
+knitr::kable(dt, format = "markdown")
+```
+
+## Pourcentage de variance exprimée
+
+Il y a `r mt$npc` composantes principales pour cette PCA. 
+```{r, echo = FALSE, fig.width=4, fig.height=3.5, fig.align = "center"}
+
+# Pourcentage de la variance exprimée
+df <- data.frame(Dimensions = paste0("PC", 1:mt$npc), Explained.Variances = MSpca$EV)
+
+ggplot(data=df, aes(x = Dimensions, y = Explained.Variances)) +
+  geom_bar(stat="identity", fill="steelblue")+
+  geom_text(aes(label=Explained.Variances), vjust = -0.3, size = 3.5)+
+  theme_minimal()
+```
+
+
+## Projection des scores sur PCa et PCb
+```{r, echo = FALSE, fig.width = 7, fig.height = 4, fig.align = "center"}
+    for(i in 1:(mt$npc-1)){
+      mt$PCx <- i
+      for(j in (i+1):mt$npc){
+        mt$PCy <- j
+        
+        ax.pca <- c(mt$PCx, mt$PCy) 
+
+        if(length(row.names(mt$h5)[mt$acq]) > 8){
+          l_ech <- length(row.names(mt$h5)[mt$acq])
+          ml_ech <- divide_by(l_ech,2) %>% floor()
+          legende <- c(row.names(mt$h5)[mt$acq[1:3]], 
+                       row.names(mt$h5)[mt$acq[ml_ech:(ml_ech+2)]],
+                       row.names(mt$h5)[mt$acq[(l_ech-2):l_ech]])
+          p_ch <- c(NA, rep(16,9))
+          col_l <- c(NA, alpha(mt$h5$color[mt$acq[c(1:3,(ml_ech:(ml_ech+2)),((l_ech-2):l_ech))]],0.5))
+        }else{
+          legende <- c(row.names(mt$h5)[mt$acq])
+          p_ch <- c(NA, rep(16,length(mt$acq)))
+          col_l <- c(NA, alpha(mt$h5$color[mt$acq],0.5))
+        }
+        
+        par(mar = c(3,3,1,8), mgp = c(1.7,.6,0), cex.main = 1, cex.lab = 1, cex.axis = 1,xpd = FALSE)
+          plot(MSpca$Tr[,ax.pca[1]], MSpca$Tr[,ax.pca[2]], pch = 16, col = alpha(MSpca$mt_col,0.5),
+               xlab = paste("PC",ax.pca[1],"(",MSpca$EV[ax.pca[1]],"%)"),
+               ylab = paste("PC",ax.pca[2],"(",MSpca$EV[ax.pca[2]],"%)"))
+          abline(h =0, v = 0, lty = 2)
+      
+        legend("topright", bty = "n", cex = 1, xpd = NA, inset = c(-0.31,0),
+               legend = c("Sample(s) :",legende) , pch = p_ch, col = col_l, pt.cex = 1)
+      }
+    }
+      
+```
+
+## Loadings
+```{r, echo = FALSE, fig.width=6, fig.height=4, fig.align = "center"}
+# Loadings
+
+   if(mt$PCA_plot_loading_PC[1] == "all"){
+      mt$PCA_plot_loading_PC <- seq(1:mt$npc)
+   }
+    
+   for(i in mt$PCA_plot_loading_PC){
+     pc <- i
+     eph <- MSpca$pk.ld[[pc]][1,] 
+     
+     par(mar = c(3,3,2,.2), mgp = c(1.7,.6,0), cex.main = 1.5, cex.lab = 1, cex.axis = 1,xpd = FALSE)
+       matplot(sp$xMS_PCA, MSpca$P[,pc], type = "l", 
+               xlim = c(mt$pca_plot_xmin, mt$pca_plot_xmax),
+               ylim = c(min(MSpca$P[,pc]), max(MSpca$P[,pc]))*1.2,
+               xlab = "m/z", ylab = "Relative intensity (u.a.)",
+               main = paste0("loadings of PC", pc, " (", MSpca$EV[pc], " %)"))
+       bitext(eph, MSpca$P[ch(eph),pc], text = ch(eph), bicex = 1, off7 = 0.3)
+   }
+
+```
+
+## Spectres des produits pures
+```{r, echo = FALSE, fig.width=6, fig.height=4, fig.align = "center"}
+if(mt$pca_view_plot == TRUE){
+   for(j in mt$acq){
+    par(mar = c(3,3,1.5,0.5), cex = 1.2, mgp = c(2,0.75,0))
+      matplot(sp$xMS, sp$MS_max[j,],
+              type = "l", col = alpha("grey50",0.3),
+              xlim = c(mt$pca_plot_xmin, mt$pca_plot_xmax),
+              ylim = c(0, max(sp$MS_max[j,])*1.2),
+              xlab = "m/z", ylab = "Relative intensity (u.a.)",
+              main = row.names(mt$h5)[j])
+      text(sp$pk$MS_max[[j]][1,], sp$pk$MS_max[[j]][2,], labels = sp$pk$MS_max[[j]][1,], cex = 0.8, pos = 3, offset = 0.5)
+  }
+}
+```
+
+## Loadings (zoom)
+```{r, echo = FALSE, fig.width=6, fig.height=2.8, fig.align = "center"}
+# Loadings zoom
+if(mt$pca_loading_plot_zoom == TRUE){
+  for(pc in 1:mt$npc){
+    xM <- dizaine(mt$pca_plot_xmin)
+    while(xM <= mt$pca_plot_xmax){
+      eph <- MSpca$pk.ld[[pc]][1,] 
+     
+      par(mar = c(3,3,2,.2), mgp = c(1.7,.6,0), cex.main = 1.5, cex.lab = 1, cex.axis = 1,xpd = FALSE)
+        matplot(sp$xMS_PCA, MSpca$P[,pc], type = "l", 
+                xlim = c(xM, add(xM,mt$w.zoom)),
+                ylim = c(min(MSpca$P[,pc]), max(MSpca$P[,pc]))*1.2,
+                xlab = "m/z", ylab = "Relative intensity (u.a.)",
+                main = paste0("loadings of PC", pc, " (zoom)"))
+        bitext(eph, MSpca$P[ch(eph),pc], text = ch(eph), bicex = 1, off7 = 0.3)
+      
+        abline(v = seq(xM,add(xM,mt$w.zoom),length.out = 4), lty = 2, col = "grey50")
+      xM <- add(xM, mt$w.zoom)
+    }
+  }
+}
+```
