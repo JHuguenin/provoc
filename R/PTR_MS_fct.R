@@ -36,7 +36,7 @@ library(zoo)
 #' @export
 #'
 #' @examples
-import_h5 <- function(wd){
+import_h5 <- function(){
 
   if(("Figures" %in% dir())==FALSE){
     dir.create("Figures")
@@ -58,7 +58,7 @@ import_h5 <- function(wd){
   sp$h5 <- list(f_h5 = f_h5,
                 ls_h5 = ls_h5,
                 mt_h5 = mt_h5,
-                wd = wd)
+                wd = getwd())
 
   h5closeAll()
 
