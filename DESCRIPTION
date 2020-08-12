@@ -1,11 +1,18 @@
 Package: provoc
 Type: Package
-Title: What the Package Does (Title Case)
-Version: 0.1.0
-Author: Who wrote it
-Maintainer: The package maintainer <yourself@somewhere.net>
-Description: More about what it does (maybe more than one line)
+Title: package for analysis h5 from Vocus PTR-TOF-MS 
+Version: 0.8.0
+Author: Joris Huguenin <joris.huguenin@cefe.cnrs.fr>
+Maintainer: Joris Huguenin <joris.huguenin@cefe.cnrs.fr>
+Description: This package import h5 files from Vocus PTR-TOF-MS, compil all data in a list (sp in
+              e.g) and from there analysis data. Much functions are create for measured the
+              calibration of instruments or data, for calculated the area under the curve (AUC), for
+              follow the AUC evolution in time, for maked a PCA or ICA analysis and for print graphs
+              of spectra.
     Use four spaces when indenting paragraphs within the Description.
-License: What license is it under?
+Depends: calibrate, carData, car, cluster, DescTools, dygraphs, ggplot2, hrbrthemes, ica,
+         kableExtra, knitr, magrittr, MALDIquant, MASS, rhdf5, rnirs, scales, stringr, tidyverse,
+         tinytex, viridis, zoo
+License: GPL (>= 2)
 Encoding: UTF-8
 LazyData: true
