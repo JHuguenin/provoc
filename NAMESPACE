@@ -44,5 +44,4 @@ export(which.equal)
 export(which.na)
 export(which.not.na)
 export(which.sup)
-
-#' @importFrom magrittr "%>%"
+importFrom(magrittr,"%>%")

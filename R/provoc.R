@@ -74,7 +74,7 @@ re.calc.T.para <- function(L = sp){
     fmr <- difftime(Di[[i]][1], Di[[vec_T0[i]]][1], units = "secs")
 
     # apply the delta between T0 and Tref
-    Tr[[i]] <- add(Ti[[i]],fmr)
+    Tr[[i]] <- magrittr::add(Ti[[i]],fmr)
 
     # # Dref become D0 for acquisition
     # Dr[[i]] <- subtract(Di[[i]],fmr)
@@ -1406,7 +1406,7 @@ dy.cinetic.plot <- function(L, titre, acq = ind_PK, MA = ma, VP = vp){
   # and plot
   if(VP$time == "date"){
     dysp$xT <- as.POSIXct(dysp$xT, origin = "1970-01-01", tz = "GMT")
-    dysp <- xts(dysp[,-1], order.by = dysp$xT, tz="GMT")
+    dysp <- xts::xts(dysp[,-1], order.by = dysp$xT, tz="GMT")
 
     rmarkdown::render(input = "~/inst/rmd/print_dypk_date.Rmd",
                       output_file = paste0(L$wd, "/Figures/kinetic/", titre))
@@ -1440,25 +1440,18 @@ dy.mat.pk <- function(ac = acq, ipk = ind_pk, La = List_abs, Li = L, vp = VP){
   return(fmr)
 }
 
-#### Library ####
-library(dygraphs)
-library(magrittr)
-library(MALDIquant)
-library(rhdf5)
-library(rnirs)
-library(tidyverse)
-library(viridis)
-library(xts)
+#### Depends ####
 
+# usethis::use_package("dplyr", min_version = "1.0.5")
+# usethis::use_package("dygraphs", min_version = "1.1.1.6")
+# usethis::use_package("magrittr", min_version = "2.0.1")
+# usethis::use_package("MALDIquant", min_version = "1.19.3")
+# usethis::use_dev_package("rhdf5", remote = "grimbough/rhdf5")
+# usethis::use_dev_package("rnirs", remote = "mlesnoff/rnirs")
+# usethis::use_package("stringr", min_version = "1.4.0")
+# usethis::use_package("tidyr", min_version = "1.1.3")
+# usethis::use_package("viridis", min_version = "0.6.0")
+# usethis::use_package("xts", min_version = "0.12.1")
 
-usethis::use_package("dygraphs", min_version = "1.1.1.6")
-usethis::use_package("magrittr", min_version = "2.0.1")
-usethis::use_package("MALDIquant", min_version = "1.19.3")
-usethis::use_package("rhdf5", min_version = "2.34.0")
-usethis::use_package("rnirs", min_version = "1.9-17")
-usethis::use_package("tidyverse", min_version = "1.3.1")
-usethis::use_package("viridis", min_version = "0.6.6")
-usethis::use_package("xts", min_version = "0.12.1")
-usethis::use_dev_package("monpackage",remote = "git::git@git.lab.sspcloud.fr:nom/monpackage.git")
-
-
+#' @importFrom magrittr "%>%"
+# importFrom(magrittr,"%>%")
