@@ -1440,4 +1440,25 @@ dy.mat.pk <- function(ac = acq, ipk = ind_pk, La = List_abs, Li = L, vp = VP){
   return(fmr)
 }
 
+#### Library ####
+library(dygraphs)
+library(magrittr)
+library(MALDIquant)
+library(rhdf5)
+library(rnirs)
+library(tidyverse)
+library(viridis)
+library(xts)
+
+
+usethis::use_package("dygraphs", min_version = "1.1.1.6")
+usethis::use_package("magrittr", min_version = "2.0.1")
+usethis::use_package("MALDIquant", min_version = "1.19.3")
+usethis::use_package("rhdf5", min_version = "2.34.0")
+usethis::use_package("rnirs", min_version = "1.9-17")
+usethis::use_package("tidyverse", min_version = "1.3.1")
+usethis::use_package("viridis", min_version = "0.6.6")
+usethis::use_package("xts", min_version = "0.12.1")
+usethis::use_dev_package("monpackage",remote = "git::git@git.lab.sspcloud.fr:nom/monpackage.git")
+
 

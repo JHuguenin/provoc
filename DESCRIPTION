@@ -14,12 +14,10 @@ LazyData: true
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.1.1
 Imports:
-    tidyverse,
-    magrittr,
-    MALDIquant,
-    viridis,
-    rnirs,
-    dygraphs,
-    xts,
-    rhdf5
-
+    dygraphs (>= 1.1.1.6),
+    magrittr (>= 2.0.1),
+    MALDIquant (>= 1.19.3),
+    rhdf5 (>= 2.34.0),
+    rnirs (>= 1.9-17),
+    viridis (>= 0.6.6),
+    xts (>= 0.12.1)
