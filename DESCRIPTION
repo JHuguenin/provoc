@@ -1,0 +1,25 @@
+Package: provoc
+Title: analyze data of VOC by PTR-ToF-MS Vocus
+Version: 0.0.0.9000
+Authors@R: 
+    person(given = "Joris",
+           family = "Huguenin",
+           role = c("aut", "cre"),
+           email = "joris.huguenin@cefe.cnrs.fr")
+Description: What the package does (one paragraph).
+License: `use_mit_license()`, `use_gpl3_license()` or friends to pick a
+    license
+Encoding: UTF-8
+LazyData: true
+Roxygen: list(markdown = TRUE)
+RoxygenNote: 7.1.1
+Imports:
+    tidyverse,
+    magrittr,
+    MALDIquant,
+    viridis,
+    rnirs,
+    dygraphs,
+    xts,
+    rhdf5
+

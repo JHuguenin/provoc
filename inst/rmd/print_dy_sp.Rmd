@@ -1,0 +1,15 @@
+---
+output: html_document
+---
+
+```{r, fig.width=12, fig.height=5, echo=FALSE}
+dygraph(dysp, main = titre) %>%
+    dyAxis("y", label = "Intensity (a.u.)") %>% 
+    dyAxis("x", label = "m/z") %>%
+    dyRangeSelector(keepMouseZoom = TRUE, dateWindow = c(50,200)) %>%
+    dyHighlight(hideOnMouseOut = FALSE, highlightSeriesOpts = list(strokeWidth = 2)) %>% 
+    dyOptions(stackedGraph = FALSE, axisLineWidth = 1.5, fillGraph = TRUE,
+              gridLineColor = "lightblue", colors = dy_color) %>%
+    dyLegend(show = "onmouseover", hideOnMouseOut = TRUE) %>% 
+    dyUnzoom()
+```
