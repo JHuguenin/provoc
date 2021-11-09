@@ -18,6 +18,7 @@ Imports:
     magrittr (>= 2.0.1),
     MALDIquant (>= 1.19.3),
     rhdf5 (>= 2.34.0),
+    rmarkdown (>= 2.11),
     rnirs (>= 1.9.18),
     scales (>= 1.1.0),
     stringr (>= 1.4.0),

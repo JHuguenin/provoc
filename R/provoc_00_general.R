@@ -7,8 +7,7 @@
 #' @docType package
 #' @name provoc
 #'
-#'
-#' @importFrom viridis viridis
+#' @import dygraphs
 #' @importFrom magrittr add
 #' @importFrom magrittr divide_by
 #' @importFrom magrittr multiply_by
@@ -24,6 +23,7 @@
 #' @importFrom MALDIquant smoothIntensity
 #' @importFrom rhdf5 H5Fclose
 #' @importFrom rhdf5 H5Fopen
+#' @importFrom rmarkdown render
 #' @importFrom scales alpha
 #' @importFrom stats density
 #' @importFrom stats median
@@ -34,23 +34,22 @@
 #' @importFrom stringr str_sub
 #' @importFrom usethis use_dev_package
 #' @importFrom usethis use_package
+#' @importFrom viridis viridis
 #' @importFrom xts xts
 NULL
 
-usethis::use_package("dplyr", min_version = "1.0.0")
 usethis::use_package("dygraphs", min_version = "1.1.0.0")
 usethis::use_package("magrittr", min_version = "2.0.0")
 usethis::use_package("MALDIquant", min_version = "1.19.0")
 usethis::use_dev_package("rhdf5", remote = "grimbough/rhdf5")
-usethis::use_dev_package("rnirs", remote = "mlesnoff/rnirs")
+usethis::use_package("rmarkdown", min_version = "2.11")
+# usethis::use_dev_package("rnirs", remote = "mlesnoff/rnirs")
 usethis::use_package("scales", min_version = "1.1.0")
 usethis::use_package("stringr", min_version = "1.4.0")
-usethis::use_package("tidyr", min_version = "1.1.0")
+# usethis::use_package("tidyr", min_version = "1.1.0")
 usethis::use_package("usethis", min_version = "2.0.0")
 usethis::use_package("viridis", min_version = "0.6.0")
 usethis::use_package("xts", min_version = "0.12.0")
-
-
 
 #### Fonction inutile ####
 citation.list <- {list(
@@ -175,7 +174,7 @@ re.calc.T.para <- function(L = sp){
 
   # pour la date
   # vec_D <- as.numeric(vec_D)
-  # Di <- L$Tinit$date
+  Di <- L$Tinit$date
   # Dr <- L$Trecalc$date
   # subtract(Di[[17]][1], Di[[1]][1]) %>% as.numeric()
 
@@ -622,8 +621,8 @@ dy.spectra <- function(sel_sp = sp$mt$meta[sp$acq,"end"], L = sp, new_color = FA
 
     ftitre <- paste0(getwd(),"/Figures/") %>% dir() %>% grep(titre, .) %>% length() %>% add(1)
     ftitre <- paste0(getwd(),"/Figures/dy_",titre,"_",ftitre)
-
-    rmarkdown::render(input = "~/inst/rmd/print_dy_sp.Rmd", output_file = ftitre)
+    fmr <- system.file("rmd", "print_dy_sp.Rmd", package = "provoc")
+    rmarkdown::render(input = fmr, output_file = ftitre)
   }
 }
 
@@ -1037,10 +1036,12 @@ dy.kinetic.plot <- function(L, titre, acq = ind_PK, MA = ma, VP = vp){
     dysp$xT <- as.POSIXct(dysp$xT, origin = "1970-01-01", tz = "GMT")
     dysp <- xts::xts(dysp[,-1], order.by = dysp$xT, tz="GMT")
 
-    rmarkdown::render(input = "~/inst/rmd/print_dypk_date.Rmd",
+    fmr <- system.file("rmd", "print_dypk_date.Rmd", package = "provoc")
+    rmarkdown::render(input = fmr,
                       output_file = paste0(L$wd, "/Figures/kinetic/", titre))
   }else{
-    rmarkdown::render(input = "~/inst/rmd/print_dypk_time.Rmd",
+    fmr <- system.file("rmd", "print_dypk_time.Rmd", package = "provoc")
+    rmarkdown::render(input = fmr,
                       output_file = paste0(L$wd, "/Figures/kinetic/", titre))
   }
 }
