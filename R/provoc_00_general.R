@@ -51,6 +51,8 @@ usethis::use_package("usethis", min_version = "2.0.0")
 usethis::use_package("viridis", min_version = "0.6.0")
 usethis::use_package("xts", min_version = "0.12.0")
 
+devtools::build_readme()
+
 #### Fonction inutile ####
 citation.list <- {list(
   c("Il faut aller trop loin pour decouvrir les limites.", "Joris Huguenin"),
