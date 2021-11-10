@@ -32,23 +32,9 @@
 #' @importFrom stringr str_remove_all
 #' @importFrom stringr str_split
 #' @importFrom stringr str_sub
-#' @importFrom usethis use_dev_package
-#' @importFrom usethis use_package
 #' @importFrom viridis viridis
 #' @importFrom xts xts
 NULL
-
-usethis::use_package("dygraphs", min_version = "1.1.0.0")
-usethis::use_package("magrittr", min_version = "2.0.0")
-usethis::use_package("MALDIquant", min_version = "1.19.0")
-usethis::use_dev_package("rhdf5", remote = "grimbough/rhdf5")
-usethis::use_package("rmarkdown", min_version = "2.11")
-usethis::use_package("scales", min_version = "1.1.0")
-usethis::use_package("stringr", min_version = "1.4.0")
-usethis::use_package("usethis", min_version = "2.0.0")
-usethis::use_package("viridis", min_version = "0.6.0")
-usethis::use_package("xts", min_version = "0.12.0")
-
 
 #### Fonction inutile ####
 citation.list <- {list(

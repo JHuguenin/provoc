@@ -13,19 +13,15 @@ LazyData: true
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.1.1
 Imports:
-    dplyr (>= 1.0.5),
-    dygraphs (>= 1.1.1.6),
-    magrittr (>= 2.0.1),
-    MALDIquant (>= 1.19.3),
+    dygraphs (>= 1.1.0),
+    magrittr (>= 2.0.0),
+    MALDIquant (>= 1.19.0),
     rhdf5 (>= 2.34.0),
-    rmarkdown (>= 2.11),
-    rnirs (>= 1.9.18),
+    rmarkdown (>= 2.11.0),
     scales (>= 1.1.0),
     stringr (>= 1.4.0),
-    tidyr (>= 1.1.3),
-    usethis (>= 2.0.1),
+    usethis (>= 2.0.0),
     viridis (>= 0.6.0),
-    xts (>= 0.12.1)
+    xts (>= 0.12.0)
 Remotes: 
     grimbough/rhdf5,
-    mlesnoff/rnirs

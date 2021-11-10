@@ -3,10 +3,15 @@
 
 # provoc <a href='https://github.com/JHuguenin/provoc'><img src='img/imgfile.png' align="right" height="138" /></a>
 
+<!-- badges: start -->
+
+[![R-CMD-check](https://github.com/JHuguenin/provoc/workflows/R-CMD-check/badge.svg)](https://github.com/JHuguenin/provoc/actions)
 <!-- [![R build status](https://github.com/JHuguenin/provoc/workflows/R-CMD-check/badge.svg)](https://github.com/mitchelloharawild/icons/actions?workflow=R-CMD-check) -->
-<!-- [![lifecycle](https://img.shields.io/badge/lifecycle-experimental-orange.svg)](https://www.tidyverse.org/lifecycle/#experimental) -->
-<!-- [![CRAN_Status_Badge](http://www.r-pkg.org/badges/version/provoc)](https://cran.r-project.org/package=provoc) -->
+[![lifecycle](https://img.shields.io/badge/lifecycle-experimental-orange.svg)](https://www.tidyverse.org/lifecycle/#experimental)
+[![CRAN\_Status\_Badge](http://www.r-pkg.org/badges/version/provoc)](https://cran.r-project.org/package=provoc)
 <!-- [![Coverage status](https://codecov.io/gh/mitchelloharawild/icons/branch/master/graph/badge.svg)](https://codecov.io/gh/mitchelloharawild/icon?branch=master) -->
+
+<!-- badges: end -->
 
 The `provoc` package for R makes adding web icons to reports,
 presentations and apps easy. It integrates many popular icon libraries
