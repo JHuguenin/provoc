@@ -14,9 +14,9 @@ knitr::opts_chunk$set(
 
 # provoc <a href='https://github.com/JHuguenin/provoc'><img src='img/imgfile.png' align="right" height="138" /></a>
 
- <!-- badges: start -->
+<!-- badges: start -->
 
-[![R-CMD-check](https://github.com/JHuguenin/provoc/workflows/R-CMD-check/badge.svg)](https://github.com/JHuguenin/provoc/actions)
+<!-- [![R-CMD-check](https://github.com/JHuguenin/provoc/workflows/R-CMD-check/badge.svg)](https://github.com/JHuguenin/provoc/actions) -->
 <!-- [![R build status](https://github.com/JHuguenin/provoc/workflows/R-CMD-check/badge.svg)](https://github.com/mitchelloharawild/icons/actions?workflow=R-CMD-check) -->
 [![lifecycle](https://img.shields.io/badge/lifecycle-experimental-orange.svg)](https://www.tidyverse.org/lifecycle/#experimental)
 [![CRAN_Status_Badge](http://www.r-pkg.org/badges/version/provoc)](https://cran.r-project.org/package=provoc)
@@ -24,9 +24,11 @@ knitr::opts_chunk$set(
 
 <!-- badges: end -->
 
-The `provoc` package for R makes adding web icons to reports, presentations and apps easy. It integrates many popular icon libraries from around the web with a simple interface that works with any `rmarkdown` output format. If a particular icon library is not explicitly supported by this package, you can still use it by creating a custom icon set from a folder of SVG files. Icons provide flexible means of digital expression, allowing expressions and functionality beyond what is possible with emoji.
+**P**erform a **R**apid **O**verview for **V**olatile **O**rganic **C**ompounds.  
 
-The `provoc` package currently provides helpful tools for downloading and using icons from these libraries:
+The `provoc` package has been developed to support PTR-ToF-MS users in their analyses. It has been designed for a quick import of data into R and visualization of the first results in a few minutes. It automatically detects peaks and provides a matrix for further analysis. Some chemometrics functions are proposed.  
+
+It is still a young and wild package that will appreciate feedback and new ideas for its development. Do not hesitate to contact the author to get or provide help.
 
 # Installation
 
@@ -37,13 +39,75 @@ The **development** version can be installed from GitHub using:
 remotes::install_github("jhuguenin/provoc")
 ```
 
-Once you've installed the package you'll also need to download some icons! Supported icon libraries (listed above) can be downloaded using the `download_*()` functions. For example, to download the Font Awesome icons you would use `download_fontawesome()`.
+The package requires the update of many dependencies:    
+
+* `dygraphs` (>= 1.1.0)  
+* `magrittr` (>= 2.0.0)  
+* `MALDIquant` (>= 1.19.0)  
+* `rhdf5` (>= 2.34.0)  
+* `rmarkdown` (>= 2.11.0)  
+* `scales` (>= 1.1.0)  
+* `stringr` (>= 1.4.0)  
+* `usethis` (>= 2.0.0)  
+* `viridis` (>= 0.6.0)  
+* `xts` (>= 0.12.0)  
 
 # Usage
 
-```{r load}
+```{r load, eval = FALSE}
 library(provoc)
 ```
 
 Icons can be inserted inline using inline 
 Icons can also be inserted using usual R chunks.
+
+
+```{r importation, eval = FALSE}
+# working directory
+wd <- "~/R/data_test/miscalenous" # without final "/"
+setwd(wd)
+
+# import
+sp <- import.h5(wd)
+```
+
+
+```{r meta data, eval = FALSE}
+sp <- import.meta("meta_1")
+```
+
+
+```{r workflow, eval = FALSE}
+saveRDS(sp$workflow, "workflow.rds")
+wf <- readRDS("workflow.rds")
+```
+
+
+```{r time gestion, eval = FALSE}
+sp <- re.calc.T.para(sp)
+sp <- re.init.T.para(sp)
+```
+
+
+```{r Spectra plot, eval = FALSE}
+# a dynamic plot :
+dy.spectra(sel_sp = sp$mt$meta[sp$acq,"end"], new_color = FALSE)
+# a standart plot :
+fx.spectra(sel_sp = sp$mt$meta[sp$acq,"end"], pkm = 137, pkM = 137, leg = "l")
+fx.spectra(sel_sp = 1, pkm = 59, pkM = 150)
+```
+
+
+```{r kinetic plot, eval = FALSE}
+kinetic.plot(M_num = M.Z(c(59, 137)), each_mass = TRUE,
+                         group = "grp1", graph_type = "dy",
+                         Y_exp = FALSE, time_format = "date")
+# Liste des variables :
+# M_num         les masses analysees. M.Z(c(69, 205, 157)) ou c(69.055, 205.158, 157.021)
+# each_mass     un graphe pour chaque masse ou non. Logical TRUE or FALSE
+# group         groupe avec le nom de la colonne en argument. Ex : "grp1". Or FALSE
+# graph_type    choisi soit des graphe fixe "fx" au format tiff soit des graphe dynamique "dy" au format html
+# Y_exp         L'ordonnée exponentielle. Logical. TRUE or FALSE
+# time_format   L'abscisse est une duree ("time") ou une date ("date").
+```
+

@@ -6,7 +6,11 @@ Authors@R:
            family = "Huguenin",
            role = c("aut", "cre"),
            email = "joris.huguenin@cefe.cnrs.fr")
-Description: What the package does (one paragraph).
+Description: The provoc package has been developed to support PTR-ToF-MS users
+    in their analyses. It has been designed for a quick import of data into R
+    and visualization of the first results in a few minutes. It automatically
+    detects peaks and provides a matrix for further analysis. Some chemometrics
+    functions are proposed.  
 License: GPL-3
 Encoding: UTF-8
 LazyData: true
