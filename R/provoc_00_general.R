@@ -43,15 +43,12 @@ usethis::use_package("magrittr", min_version = "2.0.0")
 usethis::use_package("MALDIquant", min_version = "1.19.0")
 usethis::use_dev_package("rhdf5", remote = "grimbough/rhdf5")
 usethis::use_package("rmarkdown", min_version = "2.11")
-# usethis::use_dev_package("rnirs", remote = "mlesnoff/rnirs")
 usethis::use_package("scales", min_version = "1.1.0")
 usethis::use_package("stringr", min_version = "1.4.0")
-# usethis::use_package("tidyr", min_version = "1.1.0")
 usethis::use_package("usethis", min_version = "2.0.0")
 usethis::use_package("viridis", min_version = "0.6.0")
 usethis::use_package("xts", min_version = "0.12.0")
 
-devtools::build_readme()
 
 #### Fonction inutile ####
 citation.list <- {list(
@@ -119,7 +116,6 @@ citation.list <- {list(
 #' @param ls.t
 #'
 #' @return
-#' @export
 #'
 #' @examples
 acq.time <- function(ls.t = ls_h5[[1]]){
@@ -209,7 +205,6 @@ re.calc.T.para <- function(L = sp){
 #' @param Li
 #'
 #' @return
-#' @export
 #'
 #' @examples
 mass.shift <- function(Li){
@@ -252,7 +247,6 @@ mass.shift <- function(Li){
 #' @param f_h5
 #'
 #' @return
-#' @export
 #'
 #' @examples
 nm.ls <- function(f_h5){
@@ -345,8 +339,6 @@ import.meta <- function(nm = "meta_empty", L = sp){
   return(L)
 }
 
-
-
 #### Provoc_02_gest_meta ####
 #### Importation ####
 
@@ -358,7 +350,6 @@ import.meta <- function(nm = "meta_empty", L = sp){
 #' @param ll
 #'
 #' @return
-#' @export
 #'
 #' @examples
 read.h5 <- function(num_fil=1, ll = f_h5){
@@ -518,7 +509,6 @@ import.h5 <- function(wdir = wd){
 #' @param L
 #'
 #' @return
-#' @export
 #'
 #' @examples
 red.xMS <- function(L=sp){
@@ -846,7 +836,6 @@ kinetic.plot <- function(M_num = M.Z(c(59, 137)), each_mass = TRUE,
 #' @param VP
 #'
 #' @return
-#' @export
 #'
 #' @examples
 fx.kinetic.plot <- function(L, titre, acq = ind_PK, MA = ma, VP = vp){
@@ -963,7 +952,6 @@ fx.kinetic.plot <- function(L, titre, acq = ind_PK, MA = ma, VP = vp){
 #' @param VP
 #'
 #' @return
-#' @export
 #'
 #' @examples
 dy.kinetic.plot <- function(L, titre, acq = ind_PK, MA = ma, VP = vp){
@@ -1057,7 +1045,6 @@ dy.kinetic.plot <- function(L, titre, acq = ind_PK, MA = ma, VP = vp){
 #' @param vp
 #'
 #' @return
-#' @export
 #'
 #' @examples
 dy.mat.pk <- function(ac = acq, ipk = ind_pk, La = List_abs, Li = L, vp = VP){
@@ -1080,7 +1067,6 @@ dy.mat.pk <- function(ac = acq, ipk = ind_pk, La = List_abs, Li = L, vp = VP){
 #' Title
 #'
 #' @return
-#' @export
 #'
 #' @examples
 print.gc <- function(){
@@ -1097,7 +1083,6 @@ print.gc <- function(){
 #' @param elem
 #'
 #' @return
-#' @export
 #'
 #' @examples
 conc.lst <- function(list_n, elem = 1){
@@ -1112,7 +1097,6 @@ conc.lst <- function(list_n, elem = 1){
 #' @param elem
 #'
 #' @return
-#' @export
 #'
 #' @examples
 dim.lst <- function(list_n, elem = 1){
@@ -1126,7 +1110,6 @@ dim.lst <- function(list_n, elem = 1){
 #' @param L
 #'
 #' @return
-#' @export
 #'
 #' @examples
 prep.names <- function(L){
@@ -1139,7 +1122,6 @@ prep.names <- function(L){
 #' @param vec
 #'
 #' @return
-#' @export
 #'
 #' @examples
 names.samples <- function(vec){str_pad(1:vec[3],vec[1], pad = "0") %>% paste(vec[2],.,sep = "_")}
@@ -1149,7 +1131,6 @@ names.samples <- function(vec){str_pad(1:vec[3],vec[1], pad = "0") %>% paste(vec
 #' @param L
 #'
 #' @return
-#' @export
 #'
 #' @examples
 convertStr2List <- function(L){
@@ -1166,7 +1147,6 @@ convertStr2List <- function(L){
 #' @param vec_col
 #'
 #' @return
-#' @export
 #'
 #' @examples
 ctrl.color <- function(vec_col = mt[,"color"]){
@@ -1187,7 +1167,6 @@ ctrl.color <- function(vec_col = mt[,"color"]){
 #' @param xMS
 #'
 #' @return
-#' @export
 #'
 #' @examples
 create_local_MS <- function(MS, xMS){createMassSpectrum(xMS,MS)}
@@ -1199,7 +1178,6 @@ create_local_MS <- function(MS, xMS){createMassSpectrum(xMS,MS)}
 #' @param spobj
 #'
 #' @return
-#' @export
 #'
 #' @examples
 mat.spectra <- function(spobj){spobj@intensity}
@@ -1209,7 +1187,6 @@ mat.spectra <- function(spobj){spobj@intensity}
 #' @param spobj
 #'
 #' @return
-#' @export
 #'
 #' @examples
 mass.spectra <- function(spobj){spobj@mass}
@@ -1234,7 +1211,6 @@ det.c <- function(brn,vec){subtract(vec,brn) %>% sapply(abs) %>% which.min()}
 #' @param splist
 #'
 #' @return
-#' @export
 #'
 #' @examples
 length.xMS <- function(splist){length(splist$xMS)}
@@ -1260,7 +1236,6 @@ print.h <- function(txt = "hello there"){heure() %>% paste0(txt,", ",.) %>% prin
 #' @param w.sub
 #'
 #' @return
-#' @export
 #'
 #' @examples
 pk.red <- function(pk_x = pk_max[1,1], mat = pk_max, w.sub = 4){
@@ -1275,7 +1250,6 @@ pk.red <- function(pk_x = pk_max[1,1], mat = pk_max, w.sub = 4){
 #' @param pk_mat
 #'
 #' @return
-#' @export
 #'
 #' @examples
 pk.short <- function(pk_mat = L$peaks){
@@ -1290,7 +1264,6 @@ pk.short <- function(pk_mat = L$peaks){
 #' Title
 #'
 #' @return
-#' @export
 #'
 #' @examples
 heure <- function(){str_split(Sys.time(),pattern = " ")[[1]][2]}
@@ -1302,7 +1275,6 @@ heure <- function(){str_split(Sys.time(),pattern = " ")[[1]][2]}
 #' @param L
 #'
 #' @return
-#' @export
 #'
 #' @examples
 list.order <- function(L = sp){
@@ -1330,7 +1302,6 @@ list.order <- function(L = sp){
 #' @param L
 #'
 #' @return
-#' @export
 #'
 #' @examples
 name.wf <- function(nwf = "randow", L = sp){
@@ -1348,7 +1319,6 @@ name.wf <- function(nwf = "randow", L = sp){
 #' @param L
 #'
 #' @return
-#' @export
 #'
 #' @examples
 wf.update <- function(nm_wf, obj_wf, L = sp){
@@ -1366,7 +1336,6 @@ wf.update <- function(nm_wf, obj_wf, L = sp){
 #' @param sel
 #'
 #' @return
-#' @export
 #'
 #' @examples
 rep.mtm <- function(col.nam, L, sel = "acq"){
@@ -1384,7 +1353,6 @@ rep.mtm <- function(col.nam, L, sel = "acq"){
 #' @param L
 #'
 #' @return
-#' @export
 #'
 #' @examples
 rep.mtu <- function(acq, col.nam, L){
@@ -1399,7 +1367,6 @@ rep.mtu <- function(acq, col.nam, L){
 #' @param x
 #'
 #' @return
-#' @export
 #'
 #' @examples
 dizaine <- function(x){
@@ -1433,7 +1400,6 @@ M.Z <- function(ma,L=sp){
 #' @param L
 #'
 #' @return
-#' @export
 #'
 #' @examples
 ind.acq <- function(n_acq,L){
