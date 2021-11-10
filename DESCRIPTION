@@ -1,6 +1,6 @@
 Package: provoc
 Title: analyze data of VOC by PTR-ToF-MS Vocus
-Version: 1.0.0.3
+Version: 1.0.1.0
 Authors@R: 
     person(given = "Joris",
            family = "Huguenin",
@@ -24,7 +24,6 @@ Imports:
     rmarkdown (>= 2.11.0),
     scales (>= 1.1.0),
     stringr (>= 1.4.0),
-    usethis (>= 2.0.0),
     viridis (>= 0.6.0),
     xts (>= 0.12.0)
 Remotes: 
