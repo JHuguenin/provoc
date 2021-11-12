@@ -104,6 +104,7 @@ citation.list <- {list(
 #' @return
 #'
 #' @examples
+#' @noRd
 acq.time <- function(ls.t = ls_h5[[1]]){
   oldw <- getOption("warn")
   options(warn = -1)
@@ -193,6 +194,7 @@ re.calc.T.para <- function(L = sp){
 #' @return
 #'
 #' @examples
+#' @noRd
 mass.shift <- function(Li){
   min_xMS <- lapply(Li, length.xMS) %>% unlist()
 
@@ -235,6 +237,7 @@ mass.shift <- function(Li){
 #' @return
 #'
 #' @examples
+#' @noRd
 nm.ls <- function(f_h5){
   nm_h5 <- str_remove_all(dir("h5")[f_h5],"_20......_......")
   nm_h5 <- str_remove_all(nm_h5,"20......_......_")
@@ -338,6 +341,7 @@ import.meta <- function(nm = "meta_empty", L = sp){
 #' @return
 #'
 #' @examples
+#' @noRd
 read.h5 <- function(num_fil=1, ll = f_h5){
 
   # find the name of file
@@ -497,6 +501,7 @@ import.h5 <- function(wdir = wd){
 #' @return
 #'
 #' @examples
+#' @noRd
 red.xMS <- function(L=sp){
   maxMS <- apply(L$MS,2,max) # Imax for each mass
   fmr <- which(maxMS < 500)
@@ -824,6 +829,7 @@ kinetic.plot <- function(M_num = M.Z(c(59, 137)), each_mass = TRUE,
 #' @return
 #'
 #' @examples
+#' @noRd
 fx.kinetic.plot <- function(L, titre, acq = ind_PK, MA = ma, VP = vp){
   # index for peaks and acquisitions
   ind_pk <- which(colnames(L$peaks) %in% MA)
@@ -940,6 +946,7 @@ fx.kinetic.plot <- function(L, titre, acq = ind_PK, MA = ma, VP = vp){
 #' @return
 #'
 #' @examples
+#' @noRd
 dy.kinetic.plot <- function(L, titre, acq = ind_PK, MA = ma, VP = vp){
   # index for peaks and acquisitions
   ind_pk <- which(colnames(L$peaks) %in% MA)
@@ -1033,6 +1040,7 @@ dy.kinetic.plot <- function(L, titre, acq = ind_PK, MA = ma, VP = vp){
 #' @return
 #'
 #' @examples
+#' @noRd
 dy.mat.pk <- function(ac = acq, ipk = ind_pk, La = List_abs, Li = L, vp = VP){
 
   if(vp$grp == FALSE) nid <- rownames(Li$mt$meta)[ac]
@@ -1055,6 +1063,7 @@ dy.mat.pk <- function(ac = acq, ipk = ind_pk, La = List_abs, Li = L, vp = VP){
 #' @return
 #'
 #' @examples
+#' @noRd
 print.gc <- function(){
   fmr <- memory.size()
   gc()
@@ -1071,6 +1080,7 @@ print.gc <- function(){
 #' @return
 #'
 #' @examples
+#' @noRd
 conc.lst <- function(list_n, elem = 1){
   list_n[[elem]]
 }
@@ -1085,6 +1095,7 @@ conc.lst <- function(list_n, elem = 1){
 #' @return
 #'
 #' @examples
+#' @noRd
 dim.lst <- function(list_n, elem = 1){
   dim(list_n[[elem]])
 }
@@ -1098,6 +1109,7 @@ dim.lst <- function(list_n, elem = 1){
 #' @return
 #'
 #' @examples
+#' @noRd
 prep.names <- function(L){
   fmr <- log10(L$nbr_sp) %>% floor() %>% add(1)
   rbind(fmr, L$names, L$nbr_sp)
@@ -1110,6 +1122,7 @@ prep.names <- function(L){
 #' @return
 #'
 #' @examples
+#' @noRd
 names.samples <- function(vec){str_pad(1:vec[3],vec[1], pad = "0") %>% paste(vec[2],.,sep = "_")}
 
 #' Title
@@ -1119,6 +1132,7 @@ names.samples <- function(vec){str_pad(1:vec[3],vec[1], pad = "0") %>% paste(vec
 #' @return
 #'
 #' @examples
+#' @noRd
 convertStr2List <- function(L){
   plip <- function(vec) return(vec)
   fmr <- unlist(L$names_acq) %>% lapply(plip)
@@ -1135,6 +1149,7 @@ convertStr2List <- function(L){
 #' @return
 #'
 #' @examples
+#' @noRd
 ctrl.color <- function(vec_col = mt[,"color"]){
 
   fmr <- which.na(vec_col == "")
@@ -1155,6 +1170,7 @@ ctrl.color <- function(vec_col = mt[,"color"]){
 #' @return
 #'
 #' @examples
+#' @noRd
 create_local_MS <- function(MS, xMS){createMassSpectrum(xMS,MS)}
 
 # return to spectra
@@ -1166,6 +1182,7 @@ create_local_MS <- function(MS, xMS){createMassSpectrum(xMS,MS)}
 #' @return
 #'
 #' @examples
+#' @noRd
 mat.spectra <- function(spobj){spobj@intensity}
 
 #' Title
@@ -1175,6 +1192,7 @@ mat.spectra <- function(spobj){spobj@intensity}
 #' @return
 #'
 #' @examples
+#' @noRd
 mass.spectra <- function(spobj){spobj@mass}
 
 # retourne l'index valable d'une borne le long d'un vecteur.
@@ -1199,6 +1217,7 @@ det.c <- function(brn,vec){subtract(vec,brn) %>% sapply(abs) %>% which.min()}
 #' @return
 #'
 #' @examples
+#' @noRd
 length.xMS <- function(splist){length(splist$xMS)}
 
 # print le texte suivi de l'heure
@@ -1224,6 +1243,7 @@ print.h <- function(txt = "hello there"){heure() %>% paste0(txt,", ",.) %>% prin
 #' @return
 #'
 #' @examples
+#' @noRd
 pk.red <- function(pk_x = pk_max[1,1], mat = pk_max, w.sub = 4){
   fmr <- subtract(mat[1,],pk_x) %>% abs() %>% multiply_by(-1) %>% which.sup(-(w.sub+1))
   return(fmr[which.max(mat[2,fmr])])
@@ -1238,6 +1258,7 @@ pk.red <- function(pk_x = pk_max[1,1], mat = pk_max, w.sub = 4){
 #' @return
 #'
 #' @examples
+#' @noRd
 pk.short <- function(pk_mat = L$peaks){
   pk_max <- colnames(pk_mat) %>% as.numeric() %>% rbind(apply(pk_mat,2,max))
   fmr <- sapply(pk_max[1,], pk.red, mat = pk_max, w.sub = 4) %>% unique() %>% sort()
@@ -1252,6 +1273,7 @@ pk.short <- function(pk_mat = L$peaks){
 #' @return
 #'
 #' @examples
+#' @noRd
 heure <- function(){str_split(Sys.time(),pattern = " ")[[1]][2]}
 
 # order the list
@@ -1263,6 +1285,7 @@ heure <- function(){str_split(Sys.time(),pattern = " ")[[1]][2]}
 #' @return
 #'
 #' @examples
+#' @noRd
 list.order <- function(L = sp){
   L <- list("MS" = L$MS,
             "peaks" = L$peaks,
@@ -1290,6 +1313,7 @@ list.order <- function(L = sp){
 #' @return
 #'
 #' @examples
+#' @noRd
 name.wf <- function(nwf = "randow", L = sp){
   fmr <- length(L$workflow)
   names(L$workflow)[[fmr]] <- nwf
@@ -1307,6 +1331,7 @@ name.wf <- function(nwf = "randow", L = sp){
 #' @return
 #'
 #' @examples
+#' @noRd
 wf.update <- function(nm_wf, obj_wf, L = sp){
   L$workflow <- c(L$workflow, list(obj_wf))
   L <- name.wf(nm_wf, L)
@@ -1324,6 +1349,7 @@ wf.update <- function(nm_wf, obj_wf, L = sp){
 #' @return
 #'
 #' @examples
+#' @noRd
 rep.mtm <- function(col.nam, L, sel = "acq"){
   fmr <- L$acq
   if(sel == "all") fmr <- as.numeric(L$mt$meta[,"ID"])
@@ -1341,6 +1367,7 @@ rep.mtm <- function(col.nam, L, sel = "acq"){
 #' @return
 #'
 #' @examples
+#' @noRd
 rep.mtu <- function(acq, col.nam, L){
   fmr <- which(col.nam == colnames(L$mt$meta))
   rep(L$mt$meta[acq,fmr], L$nbr_sp[acq])
@@ -1355,6 +1382,7 @@ rep.mtu <- function(acq, col.nam, L){
 #' @return
 #'
 #' @examples
+#' @noRd
 dizaine <- function(x){
   eph <- log(x,10) %>% floor() %>% multiply_by(10)
   divide_by(x,eph) %>% floor() %>% multiply_by(eph)
@@ -1388,6 +1416,7 @@ M.Z <- function(ma,L=sp){
 #' @return
 #'
 #' @examples
+#' @noRd
 ind.acq <- function(n_acq,L){
   fmr <- NULL
   mat_mt <- cbind(as.numeric(L$mt$meta[,"start"]),
@@ -1406,9 +1435,9 @@ ind.acq <- function(n_acq,L){
 #' @param nb
 #'
 #' @return
-#' @export
 #'
 #' @examples
+#' @noRd
 which.equal <- function(vec,nb){which(vec == nb)}
 # retourne la position des elements de vec egaux a nb.
 
@@ -1419,9 +1448,9 @@ which.equal <- function(vec,nb){which(vec == nb)}
 #' @param x
 #'
 #' @return
-#' @export
 #'
 #' @examples
+#' @noRd
 which.na <- function(x){which(is.na(x) == TRUE)}
 # retourne la position des NA sur un vecteur.
 
@@ -1432,9 +1461,9 @@ which.na <- function(x){which(is.na(x) == TRUE)}
 #' @param x
 #'
 #' @return
-#' @export
 #'
 #' @examples
+#' @noRd
 which.not.na <- function(x){which(is.na(x) == FALSE)}
 # retourne la position des non-NA sur un vecteur.
 
@@ -1446,9 +1475,9 @@ which.not.na <- function(x){which(is.na(x) == FALSE)}
 #' @param threshold
 #'
 #' @return
-#' @export
 #'
 #' @examples
+#' @noRd
 which.sup <- function(vec, threshold){return(which(vec > threshold))}
 # retourne la position des elements de vec superieur au seuil.
 

@@ -43,8 +43,7 @@ The package requires the update of many dependencies:
 -   `rhdf5` (&gt;= 2.34.0)  
 -   `rmarkdown` (&gt;= 2.11.0)  
 -   `scales` (&gt;= 1.1.0)  
--   `stringr` (&gt;= 1.4.0)  
--   `usethis` (&gt;= 2.0.0)  
+-   `stringr` (&gt;= 1.4.0)
 -   `viridis` (&gt;= 0.6.0)  
 -   `xts` (&gt;= 0.12.0)
 
