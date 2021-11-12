@@ -2,16 +2,30 @@
 % Please edit documentation in R/provoc_00_general.R
 \name{re.init.T.para}
 \alias{re.init.T.para}
-\title{Title}
+\title{Reinitialize the parameters of time}
 \usage{
 re.init.T.para(L = sp)
 }
 \arguments{
-\item{L}{}
+\item{L}{sp}
 }
 \value{
-
+sp
 }
 \description{
-Title
+This function allows you to reset the parameters related to the acquisition
+times. This makes it possible to modify the T0 of an acquisition group. The
+modifications must be made by the meta file
+}
+\examples{
+# The first time configuration :
+#
+# sp <- import.meta("meta_1")
+# sp <- re.calc.T.para(sp)
+#
+# The second time configuration :
+#
+# sp <- import.meta("meta_2")
+# sp <- re.init.T.para(sp)
+# sp <- re.calc.T.para(sp)
 }

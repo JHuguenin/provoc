@@ -2,7 +2,7 @@
 % Please edit documentation in R/provoc_00_general.R
 \name{fx.spectra}
 \alias{fx.spectra}
-\title{Title}
+\title{Plot spectra tiff}
 \usage{
 fx.spectra(
   sel_sp = sp$mt$meta[sp$acq, "end"],
@@ -15,11 +15,30 @@ fx.spectra(
 )
 }
 \arguments{
-\item{leg}{}
+\item{sel_sp}{a numeric vector with the selection of spectra.}
+
+\item{pkm}{the lower mass}
+
+\item{pkM}{the upper mass}
+
+\item{L}{sp}
+
+\item{new_title}{an explicite title}
+
+\item{new_color}{Logical TRUE/FALSE}
+
+\item{leg}{legend on the rigth "r" or on the left "l"}
 }
 \value{
-
+a tiff plot
 }
 \description{
-Title
+Export a tiff plot for fixed idea, a presentation or an article.
+}
+\examples{
+# For a large spectre :
+# fx.spectra(sel_sp = sp$mt$meta[sp$acq,"end"], pkm = 137, pkM = 137, leg = "l")
+#
+# for juste one peak :
+# fx.spectra(seq(1,100, by = 10), pkm = 59, pkM = 150)
 }

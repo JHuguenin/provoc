@@ -2,7 +2,7 @@
 % Please edit documentation in R/provoc_00_general.R
 \name{kinetic.plot}
 \alias{kinetic.plot}
-\title{Title}
+\title{a unique function for monitoring the kinectic of COV.}
 \usage{
 kinetic.plot(
   M_num = M.Z(c(59, 137)),
@@ -15,11 +15,28 @@ kinetic.plot(
 )
 }
 \arguments{
-\item{time_format}{}
+\item{M_num}{a vector with exact masses. It's possible to specifique these masses like
+a vector c(59.045, 137.121) or to be more evasive M.Z(c(59, 137)).}
+
+\item{each_mass}{Logical TRUE of FALSE. If TRUE, a unique plot with all mass specifie in M_num.
+Else if FALSE, a plot is create for each mass.}
+
+\item{group}{FALSE or the name of a column of meta table. e.g. "grp1".}
+
+\item{graph_type}{"dy" or " fx" for create a dynamic plot in html or a fixed plot in tiff.}
+
+\item{L}{sp}
+
+\item{Y_exp}{Logical TRUE or FALSE. The y axe is exponential ?}
+
+\item{time_format}{"date" for abscissa in day hour minutes seconde with the real date of the acquisition spectra.
+Or "time" for combine kinetic of several acquisition.}
 }
 \value{
-
+a plot
 }
 \description{
-Title
+This function allows to plot the intensity kinetics of several peaks.
+The graphs produced can group or not spectra belonging to the same class.
+It is also possible to observe a single peak or a group.
 }

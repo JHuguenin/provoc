@@ -2,16 +2,21 @@
 % Please edit documentation in R/provoc_00_general.R
 \name{empty.meta}
 \alias{empty.meta}
-\title{Title}
+\title{Export a meta file
+Execute this function for create a initial file "meta_empty.csv".}
 \usage{
 empty.meta(L = sp)
 }
 \arguments{
-\item{L}{}
+\item{L}{sp}
 }
 \value{
-
+sp
 }
 \description{
-Title
+Export a meta file
+Execute this function for create a initial file "meta_empty.csv".
+}
+\examples{
+# empty.meta()
 }

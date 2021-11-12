@@ -2,16 +2,27 @@
 % Please edit documentation in R/provoc_00_general.R
 \name{import.h5}
 \alias{import.h5}
-\title{Title}
+\title{Import all file.h5 in the h5 folder of working directory.}
 \usage{
 import.h5(wdir = wd)
 }
 \arguments{
-\item{wdir}{}
+\item{wdir}{the working directory}
 }
 \value{
-
+sp
 }
 \description{
-Title
+For use this functions, you must have a folder name "h5" whith acquisition inside.
+}
+\examples{
+# wd <- "C:/Users/huguenin/Documents/R/provoc test/data test/miscalenous"
+#
+# /!\ Note : Your datas are store like that :
+# "wd/h5/00_file_PTR_ToF_MS.h5"
+# "wd/h5/01_file_PTR_ToF_MS.h5"
+# "wd/h5/02_file_PTR_ToF_MS.h5"
+#
+# setwd(wd)
+# sp <- import.h5(wd)
 }

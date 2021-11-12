@@ -2,16 +2,22 @@
 % Please edit documentation in R/provoc_00_general.R
 \name{M.Z}
 \alias{M.Z}
-\title{Title}
+\title{search all peak in accord to a mass number}
 \usage{
 M.Z(ma, L = sp)
 }
 \arguments{
-\item{L}{}
+\item{ma}{a number of mass}
+
+\item{L}{sp}
 }
 \value{
-
+a numeric vector with all the exact mass closed to the mass number
 }
 \description{
-Title
+search all peak in accord to a mass number
+}
+\examples{
+# M.Z(c(59, 137))
+# 58.873  59.045  59.233  59.267  59.320  59.405 137.037 137.121
 }

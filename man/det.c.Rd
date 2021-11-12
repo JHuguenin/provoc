@@ -2,16 +2,23 @@
 % Please edit documentation in R/provoc_00_general.R
 \name{det.c}
 \alias{det.c}
-\title{Title}
+\title{return the index more closed of brn in the numeric vector.}
 \usage{
 det.c(brn, vec)
 }
 \arguments{
-\item{vec}{}
+\item{brn}{a number}
+
+\item{vec}{a numeric vector}
 }
 \value{
-
+a number
 }
 \description{
-Title
+return the index more closed of brn in the numeric vector.
+}
+\examples{
+# vec <- seq(1,100,by = .2)
+# a <- det.c(59.38, vec)
+# a = 293. So vec[293] is the most closed of 59,38 than vec.
 }

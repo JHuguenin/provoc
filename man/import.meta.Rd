@@ -2,16 +2,21 @@
 % Please edit documentation in R/provoc_00_general.R
 \name{import.meta}
 \alias{import.meta}
-\title{Title}
+\title{Import a meta file}
 \usage{
 import.meta(nm = "meta_empty", L = sp)
 }
 \arguments{
-\item{L}{}
+\item{nm}{"meta_1" the name (whitout .csv) of a new meta data file.}
+
+\item{L}{sp}
 }
 \value{
-
+sp
 }
 \description{
-Title
+Import a meta file
+}
+\examples{
+# sp <- import.meta("meta_1")
 }

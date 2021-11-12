@@ -96,14 +96,9 @@ citation.list <- {list(
 #### Provoc_01_gest_meta ####
 #### Gestion of time ####
 
-# acq.time
-#' Title
-#'
-#' @param ls.t
-#'
-#' @return
-#'
-#' @examples
+#' Collecte the metadata in h5 file
+#' @param ls.t a h5 file
+#' @return an hour
 #' @noRd
 acq.time <- function(ls.t = ls_h5[[1]]){
   oldw <- getOption("warn")
@@ -113,19 +108,28 @@ acq.time <- function(ls.t = ls_h5[[1]]){
     as.POSIXct(format = "%Y-%m-%dT%H:%M:%S", tz = "UTC")
 
   options(warn = oldw)
-  # return(T_acq)
   return(eph)
 }
 
-# reinitialise les parametres date et time
-#' Title
+#' Reinitialize the parameters of time
 #'
-#' @param L
-#'
-#' @return
+#' This function allows you to reset the parameters related to the acquisition
+#' times. This makes it possible to modify the T0 of an acquisition group. The
+#'  modifications must be made by the meta file
 #' @export
-#'
+#' @param L sp
+#' @return sp
 #' @examples
+#' # The first time configuration :
+#' #
+#' # sp <- import.meta("meta_1")
+#' # sp <- re.calc.T.para(sp)
+#' #
+#' # The second time configuration :
+#' #
+#' # sp <- import.meta("meta_2")
+#' # sp <- re.init.T.para(sp)
+#' # sp <- re.calc.T.para(sp)
 re.init.T.para <- function(L = sp){
   L$Trecalc$date <- L$Tinit$date
   L$Trecalc$timing <- L$Tinit$timing
@@ -133,15 +137,22 @@ re.init.T.para <- function(L = sp){
   return(L)
 }
 
-# calcul les nouveaux date et temps
-#' Title
+#' calculate the parameters of time
 #'
-#' @param L
-#'
-#' @return
 #' @export
-#'
+#' @param L sp
+#' @return sp
 #' @examples
+#' # The first time configuration :
+#' #
+#' # sp <- import.meta("meta_1")
+#' # sp <- re.calc.T.para(sp)
+#' #
+#' # The second time configuration :
+#' #
+#' # sp <- import.meta("meta_2")
+#' # sp <- re.init.T.para(sp)
+#' # sp <- re.calc.T.para(sp)
 re.calc.T.para <- function(L = sp){
   vec_T0 <- L$mt$meta[,"acq_T0 (ID)"]
   vec_D <- L$mt$meta[,"delta_T (s)"]
@@ -186,14 +197,9 @@ re.calc.T.para <- function(L = sp){
 
 #### Shift of x mass ####
 
-# mass shift
-#' Title
-#'
-#' @param Li
-#'
-#' @return
-#'
-#' @examples
+#' Shift abscissa for combine several acquisitions
+#' @param Li sp
+#' @return matrix
 #' @noRd
 mass.shift <- function(Li){
   min_xMS <- lapply(Li, length.xMS) %>% unlist()
@@ -221,23 +227,19 @@ mass.shift <- function(Li){
     legend("right",legend = ,sp_name[ind_diff], bty = "n", lty = 1, lwd = 2,
            col = viridis(n_df, direction = -1))
     dev.off()
-    print.h("There is a shift in m/z. Look the figure control")
+    hprint("There is a shift in m/z. Look the figure control")
     return(mat_xMS[1,])
   }
 }
 
 #### Gestion of name ####
 
-# List of names
-
-#' Title
-#'
-#' @param f_h5
-#'
-#' @return
-#'
-#' @examples
+#' return the list of names
+#' Make the name of samples. The date (20yymmdd_hhmmss.h5)
+#'  is deleting and the acquisitions with the same name.
 #' @noRd
+#' @param f_h5 a string of character
+#' @return another string of character
 nm.ls <- function(f_h5){
   nm_h5 <- str_remove_all(dir("h5")[f_h5],"_20......_......")
   nm_h5 <- str_remove_all(nm_h5,"20......_......_")
@@ -254,21 +256,16 @@ nm.ls <- function(f_h5){
   }
   return(nm_h5)
 }
-# Make the name of samples. The date (20yymmdd_hhmmss.h5)
-# is deleting and the acquisitions with the same name.
 
 #### meta data ####
 
-# Export a meta folder empty
-
-#' Title
-#'
-#' @param L
-#'
-#' @return
+#' Export a meta file
+#' Execute this function for create a initial file "meta_empty.csv".
+#' @param L sp
+#' @return sp
 #' @export
-#'
 #' @examples
+#' # empty.meta()
 empty.meta <- function(L = sp){
   nb_acq <- length(L$names)
   ne <- cumsum(L$nbr_sp)
@@ -293,17 +290,13 @@ empty.meta <- function(L = sp){
   return(L)
 }
 
-# Import of meta data
-
-#' Title
-#'
-#' @param nm
-#' @param L
-#'
-#' @return
+#' Import a meta file
+#' @param nm "meta_1" the name (whitout .csv) of a new meta data file.
+#' @param L sp
+#' @return sp
 #' @export
-#'
 #' @examples
+#' # sp <- import.meta("meta_1")
 import.meta <- function(nm = "meta_empty", L = sp){
 
   mt <- read.table(paste0(nm,".csv"), sep = ";", dec = ",", header = TRUE, row.names = 1, stringsAsFactors = FALSE)
@@ -331,16 +324,10 @@ import.meta <- function(nm = "meta_empty", L = sp){
 #### Provoc_02_gest_meta ####
 #### Importation ####
 
-# read.h5
-
-#' Title
-#'
-#' @param num_fil
-#' @param ll
-#'
-#' @return
-#'
-#' @examples
+#' Read one file h5
+#' @param num_fil a number, e.g. 1
+#' @param ll the f_h5 obj
+#' @return a temporary sp
 #' @noRd
 read.h5 <- function(num_fil=1, ll = f_h5){
 
@@ -381,7 +368,7 @@ read.h5 <- function(num_fil=1, ll = f_h5){
   MS <- all_MS[-fmr,]
 
   # print the working progress and the time code
-  print.h(paste0(name_h5, " # ",which(num_fil == ll), "/", length(ll)))
+  hprint(paste0(name_h5, " # ",which(num_fil == ll), "/", length(ll)))
 
   # return
   list("name" = name_h5,
@@ -393,14 +380,22 @@ read.h5 <- function(num_fil=1, ll = f_h5){
        "meta" = all_TPS2)
 }
 
-#' Title
+#' Import all file.h5 in the h5 folder of working directory.
 #'
-#' @param wdir
-#'
-#' @return
+#' For use this functions, you must have a folder name "h5" whith acquisition inside.
+#' @param wdir the working directory
+#' @return sp
 #' @export
-#'
 #' @examples
+#' # wd <- "C:/Users/huguenin/Documents/R/provoc test/data test/miscalenous"
+#' #
+#' # /!\ Note : Your datas are store like that :
+#' # "wd/h5/00_file_PTR_ToF_MS.h5"
+#' # "wd/h5/01_file_PTR_ToF_MS.h5"
+#' # "wd/h5/02_file_PTR_ToF_MS.h5"
+#' #
+#' # setwd(wd)
+#' # sp <- import.h5(wd)
 import.h5 <- function(wdir = wd){
 
   if(("Figures" %in% dir())==FALSE){
@@ -429,7 +424,7 @@ import.h5 <- function(wdir = wd){
   sp$meta <- sapply(list_h5,conc.lst, elem = 7, simplify = FALSE)
 
   sp$xMS <- mass.shift(list_h5)
-  print.h("Concatene MS")
+  hprint("Concatene MS")
 
   sp$MS <- list()
   for(i in 1:length(list_h5)){
@@ -440,15 +435,15 @@ import.h5 <- function(wdir = wd){
   remove(list_h5)
 
   # size reduction ####
-  print.h("Reduction")
+  hprint("Reduction")
   sp <- red.xMS(sp)
 
   # create MassSpectrum object ####
-  print.h("Create MassSpectrum object")
+  hprint("Create MassSpectrum object")
   sp$MS <- apply(sp$MS,1, create_local_MS, xMS = sp$xMS)
 
   # smooth spectra ####
-  print.h("Smooth spectra")
+  hprint("Smooth spectra")
   oldw <- getOption("warn")
   options(warn = -1)
   sp$MS <- smoothIntensity(sp$MS,
@@ -457,13 +452,13 @@ import.h5 <- function(wdir = wd){
   options(warn = oldw)
 
   # align spectra ####
-  print.h("Align spectra")
+  hprint("Align spectra")
   sp$names_acq <- prep.names(sp) %>% apply(2,names.samples)
   sp$MS <- alignSpectra(sp$MS, tolerance = 0.02)
   sp$MS <- averageMassSpectra(sp$MS, labels = convertStr2List(sp), method="mean")
 
   # peak detection ####
-  print.h("Peak detection")
+  hprint("Peak detection")
 
   sp$peaks <- detectPeaks(sp$MS, method="MAD", halfWindowSize=20, SNR=5)
   sp$peaks <- binPeaks(sp$peaks, tolerance=0.01)
@@ -489,18 +484,14 @@ import.h5 <- function(wdir = wd){
   sp <- empty.meta(sp)
   sp <- list.order(sp)
 
-  print.h("Import is completed")
+  hprint("Import is completed")
   return(sp)
   # import function is finished ####
 }
 
-#' Title
-#'
-#' @param L
-#'
-#' @return
-#'
-#' @examples
+#' Reduction of abscissa
+#' @param L sp
+#' @return a temporary sp
 #' @noRd
 red.xMS <- function(L=sp){
   maxMS <- apply(L$MS,2,max) # Imax for each mass
@@ -570,22 +561,24 @@ red.xMS <- function(L=sp){
 
 #### Provoc_03_gest_meta ####
 #### Plot spectra ####
-# Plot spectra dynamic
 
-#' Title
+#' Plot spectra dynamic.
 #'
-#' @param sel_sp
-#' @param L
-#' @param new_color
-#'
-#' @return
+#' Export a html plot for an intuitive exploration of data. The number of spectra is limited at 60
+#' for increase the comfort of viewing.
+#' @param sel_sp a numeric vector with the selection of spectra.
+#' @param L sp
+#' @param new_color Logical TRUE/FALSE
+#' @return a html plot
 #' @export
-#'
 #' @examples
+#' # dy.spectra(sp$mt$meta[sp$acq,"end"], new_color = FALSE)
+#' # dy.spectra(1:50)
+#' # dy.spectra(c(1, 4, 8, 22, 30), new_color = TRUE)
 dy.spectra <- function(sel_sp = sp$mt$meta[sp$acq,"end"], L = sp, new_color = FALSE){
   if(is.character(sel_sp) == TRUE) sel_sp <- as.numeric(sel_sp)
-  if(length(sel_sp) > 30) print("Caution /!\ The number of spectra is too big. Select less spectra.")
-  if(length(sel_sp) <=30){
+  if(length(sel_sp) > 60) print("Caution /!\ The number of spectra is too big. Select less spectra.")
+  if(length(sel_sp) <=60){
 
     sp_sel <- L$MS[,sel_sp]
 
@@ -609,22 +602,24 @@ dy.spectra <- function(sel_sp = sp$mt$meta[sp$acq,"end"], L = sp, new_color = FA
   }
 }
 
-# Plot spectra tiff
-
-#' Title
+#' Plot spectra tiff
 #'
-#' @param sel_sp
-#' @param pkm
-#' @param pkM
-#' @param L
-#' @param new_title
-#' @param new_color
-#' @param leg
-#'
-#' @return
+#' Export a tiff plot for fixed idea, a presentation or an article.
+#' @param sel_sp a numeric vector with the selection of spectra.
+#' @param pkm the lower mass
+#' @param pkM the upper mass
+#' @param L sp
+#' @param new_title an explicite title
+#' @param new_color Logical TRUE/FALSE
+#' @param leg legend on the rigth "r" or on the left "l"
+#' @return a tiff plot
 #' @export
-#'
 #' @examples
+#' # For a large spectre :
+#' # fx.spectra(sel_sp = sp$mt$meta[sp$acq,"end"], pkm = 137, pkM = 137, leg = "l")
+#' #
+#' # for juste one peak :
+#' # fx.spectra(seq(1,100, by = 10), pkm = 59, pkM = 150)
 fx.spectra <- function(sel_sp = sp$mt$meta[sp$acq,"end"], pkm = 59, pkM = 205,
                        L = sp, new_title = "fx_spectra", new_color = FALSE, leg = "r"){
   # check the selection
@@ -699,23 +694,25 @@ fx.spectra <- function(sel_sp = sp$mt$meta[sp$acq,"end"], pkm = 59, pkM = 205,
   dev.off()
 }
 
-
 #### Plots kinetic ####
 
-#' Title
+#' a unique function for monitoring the kinectic of COV.
 #'
-#' @param M_num
-#' @param each_mass
-#' @param group
-#' @param graph_type
-#' @param L
-#' @param Y_exp
-#' @param time_format
-#'
-#' @return
+#' This function allows to plot the intensity kinetics of several peaks.
+#'  The graphs produced can group or not spectra belonging to the same class.
+#'  It is also possible to observe a single peak or a group.
+#' @param M_num a vector with exact masses. It's possible to specifique these masses like
+#' a vector c(59.045, 137.121) or to be more evasive M.Z(c(59, 137)).
+#' @param each_mass Logical TRUE of FALSE. If TRUE, a unique plot with all mass specifie in M_num.
+#' Else if FALSE, a plot is create for each mass.
+#' @param group FALSE or the name of a column of meta table. e.g. "grp1".
+#' @param graph_type "dy" or " fx" for create a dynamic plot in html or a fixed plot in tiff.
+#' @param L sp
+#' @param Y_exp Logical TRUE or FALSE. The y axe is exponential ?
+#' @param time_format "date" for abscissa in day hour minutes seconde with the real date of the acquisition spectra.
+#' Or "time" for combine kinetic of several acquisition.
+#' @return a plot
 #' @export
-#'
-#' @examples
 kinetic.plot <- function(M_num = M.Z(c(59, 137)), each_mass = TRUE,
                          group = FALSE, graph_type = "dy", L = sp,
                          Y_exp = FALSE, time_format = "date"){
@@ -818,17 +815,13 @@ kinetic.plot <- function(M_num = M.Z(c(59, 137)), each_mass = TRUE,
   }
 }
 
-#' Title
-#'
-#' @param L
-#' @param titre
-#' @param acq
-#' @param MA
-#' @param VP
-#'
-#' @return
-#'
-#' @examples
+#' a internal fonction. Use kinetic.plot()
+#' @param L sp
+#' @param titre a string of character
+#' @param acq a group of spectra
+#' @param MA a group of masse
+#' @param VP a list of other data
+#' @return a plot
 #' @noRd
 fx.kinetic.plot <- function(L, titre, acq = ind_PK, MA = ma, VP = vp){
   # index for peaks and acquisitions
@@ -935,17 +928,13 @@ fx.kinetic.plot <- function(L, titre, acq = ind_PK, MA = ma, VP = vp){
   dev.off()
 }
 
-#' Title
-#'
-#' @param L
-#' @param titre
-#' @param acq
-#' @param MA
-#' @param VP
-#'
-#' @return
-#'
-#' @examples
+#' a internal fonction. Use kinetic.plot()
+#' @param L sp
+#' @param titre a string of character
+#' @param acq a group of spectra
+#' @param MA a group of masse
+#' @param VP a list of other data
+#' @return a plot
 #' @noRd
 dy.kinetic.plot <- function(L, titre, acq = ind_PK, MA = ma, VP = vp){
   # index for peaks and acquisitions
@@ -1029,17 +1018,13 @@ dy.kinetic.plot <- function(L, titre, acq = ind_PK, MA = ma, VP = vp){
   }
 }
 
-#' Title
-#'
-#' @param ac
-#' @param ipk
-#' @param La
-#' @param Li
-#' @param vp
-#'
-#' @return
-#'
-#' @examples
+#' a internal fonction. Use kinetic.plot()
+#' @param ac a group of spectra
+#' @param ipk a group of mass
+#' @param La a list of peaks
+#' @param Li sp
+#' @param vp a list of other data
+#' @return a matrix
 #' @noRd
 dy.mat.pk <- function(ac = acq, ipk = ind_pk, La = List_abs, Li = L, vp = VP){
 
@@ -1056,82 +1041,51 @@ dy.mat.pk <- function(ac = acq, ipk = ind_pk, La = List_abs, Li = L, vp = VP){
 #### Provoc_04_gest_meta ####
 #### micro-functions ####
 
-# print garbage collection
-
-#' Title
-#'
+#' print garbage collection
 #' @return
-#'
-#' @examples
 #' @noRd
 print.gc <- function(){
   fmr <- memory.size()
   gc()
-  paste0("RAM : ",fmr," -> gc -> ", memory.size()) %>% print.h()
+  paste0("RAM : ",fmr," -> gc -> ", memory.size()) %>% hprint()
 }
 
-#concatenation
-
-#' Title
-#'
-#' @param list_n
-#' @param elem
-#'
-#' @return
-#'
-#' @examples
+#' concatenation
+#' @param list_n a list
+#' @param elem the index
+#' @return just one element of the list
 #' @noRd
 conc.lst <- function(list_n, elem = 1){
   list_n[[elem]]
 }
 
-#concatenation
-
-#' Title
-#'
-#' @param list_n
-#' @param elem
-#'
-#' @return
-#'
-#' @examples
+#' concatenation (dimension)
+#' @param list_n a list
+#' @param elem the index
+#' @return the dimension
 #' @noRd
 dim.lst <- function(list_n, elem = 1){
   dim(list_n[[elem]])
 }
 
-#names of acquisition
-
-#' Title
-#'
-#' @param L
-#'
-#' @return
-#'
-#' @examples
+#' names of acquisition
+#' @param L sp
+#' @return a name
 #' @noRd
 prep.names <- function(L){
   fmr <- log10(L$nbr_sp) %>% floor() %>% add(1)
   rbind(fmr, L$names, L$nbr_sp)
 }
 
-#' Title
-#'
-#' @param vec
-#'
-#' @return
-#'
-#' @examples
+#' a internal function for preparation name
+#' @param vec a section of meta table
+#' @return a string character
 #' @noRd
 names.samples <- function(vec){str_pad(1:vec[3],vec[1], pad = "0") %>% paste(vec[2],.,sep = "_")}
 
-#' Title
-#'
-#' @param L
-#'
-#' @return
-#'
-#' @examples
+#' convert string to list
+#' @param L sp
+#' @return a list
 #' @noRd
 convertStr2List <- function(L){
   plip <- function(vec) return(vec)
@@ -1140,15 +1094,9 @@ convertStr2List <- function(L){
   return(fmr)
 }
 
-#control colo
-
-#' Title
-#'
-#' @param vec_col
-#'
-#' @return
-#'
-#' @examples
+#' control color for replace NA by a color
+#' @param vec_col a string character with NA or color.
+#' @return vec_col
 #' @noRd
 ctrl.color <- function(vec_col = mt[,"color"]){
 
@@ -1161,103 +1109,63 @@ ctrl.color <- function(vec_col = mt[,"color"]){
   return(vec_col)
 }
 
-# create Mass Spectrum objet
-#' Title
-#'
-#' @param MS
-#' @param xMS
-#'
-#' @return
-#'
-#' @examples
+# ' create Mass Spectrum objet
+#' @param MS a matrix
+#' @param xMS a vector
+#' @return a MassSpectrum objet
 #' @noRd
 create_local_MS <- function(MS, xMS){createMassSpectrum(xMS,MS)}
 
-# return to spectra
-
-#' Title
-#'
-#' @param spobj
-#'
-#' @return
-#'
-#' @examples
+#' return to spectra
+#' @param spobj a MassSpectrum obj
+#' @return a vector of intensity
 #' @noRd
 mat.spectra <- function(spobj){spobj@intensity}
 
-#' Title
-#'
-#' @param spobj
-#'
-#' @return
-#'
-#' @examples
+#' return to spectra
+#' @param spobj a MassSpectrum obj
+#' @return a vector of mass
 #' @noRd
 mass.spectra <- function(spobj){spobj@mass}
 
-# retourne l'index valable d'une borne le long d'un vecteur.
-
-#' Title
-#'
-#' @param brn
-#' @param vec
-#'
-#' @return
-#' @export
-#'
+#' return the index more closed of brn in the numeric vector.
+#' @param brn a number
+#' @param vec a numeric vector
+#' @return a number
 #' @examples
+#' # vec <- seq(1,100,by = .2)
+#' # a <- det.c(59.38, vec)
+#' # a = 293. So vec[293] is the most closed of 59,38 than vec.
 det.c <- function(brn,vec){subtract(vec,brn) %>% sapply(abs) %>% which.min()}
 
-# detect length of x mass
-
-#' Title
-#'
-#' @param splist
-#'
-#' @return
-#'
-#' @examples
+#' detect length of x mass
+#' @param splist sp
+#' @return a number
 #' @noRd
 length.xMS <- function(splist){length(splist$xMS)}
 
-# print le texte suivi de l'heure
-
-#' Title
-#'
-#' @param txt
-#'
-#' @return
+#' print the text below by the hour
+#' @param txt a character string
+#' @return a character string more the hour
 #' @export
-#'
-#' @examples
-print.h <- function(txt = "hello there"){heure() %>% paste0(txt,", ",.) %>% print()}
+hprint <- function(txt = "hello there"){
+  heure() %>% paste0(txt,", ",.) %>% message()
+}
 
-# trouve les pics proches
-
-#' Title
-#'
-#' @param pk_x
-#' @param mat
-#' @param w.sub
-#'
-#' @return
-#'
-#' @examples
+#' return the closed peak
+#' @param pk_x a peak
+#' @param mat a matrix of peak intensity
+#' @param w.sub the width of window
+#' @return a vector of peaks closed
 #' @noRd
 pk.red <- function(pk_x = pk_max[1,1], mat = pk_max, w.sub = 4){
   fmr <- subtract(mat[1,],pk_x) %>% abs() %>% multiply_by(-1) %>% which.sup(-(w.sub+1))
   return(fmr[which.max(mat[2,fmr])])
 }
 
-# list des peaks principaux
-
-#' Title
-#'
-#' @param pk_mat
-#'
-#' @return
-#'
-#' @examples
+#' list of principals peaks
+#' @param pk_mat matrix of peaks
+#' @return a matrix with principal peak
 #' @noRd
 pk.short <- function(pk_mat = L$peaks){
   pk_max <- colnames(pk_mat) %>% as.numeric() %>% rbind(apply(pk_mat,2,max))
@@ -1267,24 +1175,14 @@ pk.short <- function(pk_mat = L$peaks){
   return(pk_mat)
 }
 
-# donne l'heure
-#' Title
-#'
-#' @return
-#'
-#' @examples
+#' give the time in the format that I want
+#' @return an hour
 #' @noRd
 heure <- function(){str_split(Sys.time(),pattern = " ")[[1]][2]}
 
-# order the list
-
-#' Title
-#'
-#' @param L
-#'
-#' @return
-#'
-#' @examples
+#' order the list
+#' @param L sp
+#' @return sp
 #' @noRd
 list.order <- function(L = sp){
   L <- list("MS" = L$MS,
@@ -1303,16 +1201,10 @@ list.order <- function(L = sp){
             "meta" = L$meta)
 }
 
-# named workflow
-
-#' Title
-#'
-#' @param nwf
-#' @param L
-#'
-#' @return
-#'
-#' @examples
+#' named workflow
+#' @param nwf I forget
+#' @param L sp
+#' @return sp
 #' @noRd
 name.wf <- function(nwf = "randow", L = sp){
   fmr <- length(L$workflow)
@@ -1320,17 +1212,11 @@ name.wf <- function(nwf = "randow", L = sp){
   return(L)
 }
 
-# update workflow
-
-#' Title
-#'
-#' @param nm_wf
-#' @param obj_wf
-#' @param L
-#'
-#' @return
-#'
-#' @examples
+#' update workflow
+#' @param nm_wf name of operation
+#' @param obj_wf param of that
+#' @param L sp
+#' @return sp
 #' @noRd
 wf.update <- function(nm_wf, obj_wf, L = sp){
   L$workflow <- c(L$workflow, list(obj_wf))
@@ -1338,17 +1224,11 @@ wf.update <- function(nm_wf, obj_wf, L = sp){
   return(L)
 }
 
-# Repet meta parameter
-
-#' Title
-#'
-#' @param col.nam
-#' @param L
-#' @param sel
-#'
-#' @return
-#'
-#' @examples
+#' Repet meta parameter
+#' @param col.nam a name of column
+#' @param L sp
+#' @param sel "acq" or "all"
+#' @return a matrix
 #' @noRd
 rep.mtm <- function(col.nam, L, sel = "acq"){
   fmr <- L$acq
@@ -1356,49 +1236,34 @@ rep.mtm <- function(col.nam, L, sel = "acq"){
   sapply(fmr, rep.mtu, col.nam = col.nam, L = L, simplify = FALSE) %>% unlist()
 }
 
-# Repet meta parameter of a single aquisition
-
-#' Title
-#'
-#' @param acq
-#' @param col.nam
-#' @param L
-#'
-#' @return
-#'
-#' @examples
+#' Repet meta parameter of a single aquisition
+#' @param acq a number
+#' @param col.nam a name of column
+#' @param L sp
+#' @return a vector
 #' @noRd
 rep.mtu <- function(acq, col.nam, L){
   fmr <- which(col.nam == colnames(L$mt$meta))
   rep(L$mt$meta[acq,fmr], L$nbr_sp[acq])
 }
 
-# arrondi a la dizaine inferieure.
-
-#' Title
-#'
-#' @param x
-#'
-#' @return
-#'
-#' @examples
+#' round to the lower ten
+#' @param x a number
+#' @return a number
 #' @noRd
 dizaine <- function(x){
   eph <- log(x,10) %>% floor() %>% multiply_by(10)
   divide_by(x,eph) %>% floor() %>% multiply_by(eph)
 }
 
-# search all peak in accord to a mass number
-
-#' Title
-#'
-#' @param ma
-#' @param L
-#'
-#' @return
+#' search all peak in accord to a mass number
+#' @param ma a number of mass
+#' @param L sp
+#' @return a numeric vector with all the exact mass closed to the mass number
 #' @export
-#'
 #' @examples
+#' # M.Z(c(59, 137))
+#' # 58.873  59.045  59.233  59.267  59.320  59.405 137.037 137.121
 M.Z <- function(ma,L=sp){
   vec_pk <- colnames(L$peaks) %>% as.numeric()
   fmr <- NULL
@@ -1406,16 +1271,10 @@ M.Z <- function(ma,L=sp){
   return(vec_pk[fmr])
 }
 
-# return index of spectra for each acquistion
-
-#' Title
-#'
-#' @param n_acq
-#' @param L
-#'
-#' @return
-#'
-#' @examples
+#' return index of spectra for each acquistion
+#' @param n_acq a number
+#' @param L sp
+#' @return a numeric vector
 #' @noRd
 ind.acq <- function(n_acq,L){
   fmr <- NULL
@@ -1427,58 +1286,30 @@ ind.acq <- function(n_acq,L){
 
 #### which pack ####
 
-# equal :
-
-#' Title
-#'
-#' @param vec
-#' @param nb
-#'
-#' @return
-#'
-#' @examples
+#' return the index of elements egals at nb.
+#' @param vec a numeric vector
+#' @param nb a number
+#' @return index
 #' @noRd
 which.equal <- function(vec,nb){which(vec == nb)}
-# retourne la position des elements de vec egaux a nb.
 
-# na :
-
-#' Title
-#'
-#' @param x
-#'
-#' @return
-#'
-#' @examples
+#' return the index of NA.
+#' @param x a vector
+#' @return index
 #' @noRd
 which.na <- function(x){which(is.na(x) == TRUE)}
-# retourne la position des NA sur un vecteur.
 
-# not na :
-
-#' Title
-#'
-#' @param x
-#'
-#' @return
-#'
-#' @examples
+#' return the index of not NA elements.
+#' @param x a vector
+#' @return index
 #' @noRd
 which.not.na <- function(x){which(is.na(x) == FALSE)}
-# retourne la position des non-NA sur un vecteur.
 
-# superior :
-
-#' Title
-#'
-#' @param vec
-#' @param threshold
-#'
-#' @return
-#'
-#' @examples
+# return the index of elements superior of theshold.
+#' @param vec a numeric vector
+#' @param threshold a number
+#' @return index
 #' @noRd
 which.sup <- function(vec, threshold){return(which(vec > threshold))}
-# retourne la position des elements de vec superieur au seuil.
 
 #### End of Code ####

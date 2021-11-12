@@ -2,16 +2,26 @@
 % Please edit documentation in R/provoc_00_general.R
 \name{dy.spectra}
 \alias{dy.spectra}
-\title{Title}
+\title{Plot spectra dynamic.}
 \usage{
 dy.spectra(sel_sp = sp$mt$meta[sp$acq, "end"], L = sp, new_color = FALSE)
 }
 \arguments{
-\item{new_color}{}
+\item{sel_sp}{a numeric vector with the selection of spectra.}
+
+\item{L}{sp}
+
+\item{new_color}{Logical TRUE/FALSE}
 }
 \value{
-
+a html plot
 }
 \description{
-Title
+Export a html plot for an intuitive exploration of data. The number of spectra is limited at 60
+for increase the comfort of viewing.
+}
+\examples{
+# dy.spectra(sp$mt$meta[sp$acq,"end"], new_color = FALSE)
+# dy.spectra(1:50)
+# dy.spectra(c(1, 4, 8, 22, 30), new_color = TRUE)
 }

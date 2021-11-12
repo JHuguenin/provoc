@@ -2,16 +2,28 @@
 % Please edit documentation in R/provoc_00_general.R
 \name{re.calc.T.para}
 \alias{re.calc.T.para}
-\title{Title}
+\title{calculate the parameters of time}
 \usage{
 re.calc.T.para(L = sp)
 }
 \arguments{
-\item{L}{}
+\item{L}{sp}
 }
 \value{
-
+sp
 }
 \description{
-Title
+calculate the parameters of time
+}
+\examples{
+# The first time configuration :
+#
+# sp <- import.meta("meta_1")
+# sp <- re.calc.T.para(sp)
+#
+# The second time configuration :
+#
+# sp <- import.meta("meta_2")
+# sp <- re.init.T.para(sp)
+# sp <- re.calc.T.para(sp)
 }
