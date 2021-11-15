@@ -4,7 +4,7 @@
 \alias{import.h5}
 \title{Import all file.h5 in the h5 folder of working directory.}
 \usage{
-import.h5(wdir = wd)
+import.h5(wdir = getwd())
 }
 \arguments{
 \item{wdir}{the working directory}

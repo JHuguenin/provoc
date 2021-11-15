@@ -396,7 +396,7 @@ read.h5 <- function(num_fil=1, ll = f_h5){
 #' #
 #' # setwd(wd)
 #' # sp <- import.h5(wd)
-import.h5 <- function(wdir = wd){
+import.h5 <- function(wdir = getwd()){
 
   if(("Figures" %in% dir())==FALSE){
     dir.create("Figures")
