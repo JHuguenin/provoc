@@ -244,8 +244,8 @@ mass.shift <- function(Li){
 #' @noRd
 #' @param f_h5 a string of character
 #' @return another string of character
-nm.ls <- function(f_h5){
-  nm_h5 <- str_remove_all(dir("h5")[f_h5],"_20......_......")
+nm.ls <- function(f_h5, wd){
+  nm_h5 <- str_remove_all(dir(paste0(wd,"/h5"))[f_h5],"_20......_......")
   nm_h5 <- str_remove_all(nm_h5,"20......_......_")
   nm_h5 <- str_remove_all(nm_h5,".h5")
   if(length(nm_h5) != length(unique(nm_h5))){
@@ -336,10 +336,10 @@ import.meta <- function(nm = "meta_empty", L = sp){
 read.h5 <- function(num_fil=1, ll = f_h5, wd = wdir){
 
   # find the name of file
-  name_h5 <- nm.ls(num_fil)
+  name_h5 <- nm.ls(num_fil, wd)
 
   # files import
-  act_h5 <- paste0("h5/",dir(paste0(wd,"/h5"))[num_fil]) %>% H5Fopen()
+  act_h5 <- paste0(wd,"/h5/",dir(paste0(wd,"/h5"))[num_fil]) %>% H5Fopen()
 
   # abscissa extraction [~160 000 pts]
   xMS <- act_h5$FullSpectra$MassAxis
@@ -401,12 +401,12 @@ read.h5 <- function(num_fil=1, ll = f_h5, wd = wdir){
 #' # setwd(wd)
 #' # sp <- import.h5(wd)
 import.h5 <- function(wdir = getwd()){
-  if(("Figures" %in% dir())==FALSE){
-    dir.create("Figures")
-    dir.create("Figures/Control")
+  if(("Figures" %in% dir(wdir))==FALSE){
+    dir.create(paste0(wdir,"/Figures"))
+    dir.create(paste0(wdir,"/Figures/Control"))
   }
 
-  if(("h5" %in% dir())==FALSE){
+  if(("h5" %in% dir(wdir))==FALSE){
     cat("Sorry but the import can't continue. Create a \"h5\" folder with all .h5 fills that you
         want analyse.")
   }
@@ -416,7 +416,7 @@ import.h5 <- function(wdir = getwd()){
 
   length(citation.list) %>% sample(1) %>% citation.list[[.]] %>% cat()
   cat(" \n - - - - - - - - - - - - - - - \n")
-  list_h5 <- lapply(f_h5, read.h5, ll = f_h5, wd = wdir)
+  list_h5 <- lapply(f_h5, read.h5, ll = f_h5, wd = wdir) # num_fil = f_h5
 
   # formating of sp list ####
   sp <- list()
