@@ -123,6 +123,9 @@ acquisitions, it is possible to make different analyses. This allows you
 to do only one import (often long). You can rename the files meta\_1,
 meta\_2 or with more explicit names.
 
+If the import is stopped because of a corrupted file, use `info.h5()`
+and `delete.spectra.h5()` to correct this file.
+
 ## Preparation
 
 ``` r

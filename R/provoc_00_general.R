@@ -333,13 +333,13 @@ import.meta <- function(nm = "meta_empty", L = sp){
 #' @param ll the f_h5 obj
 #' @return a temporary sp
 #' @noRd
-read.h5 <- function(num_fil=1, ll = f_h5){
+read.h5 <- function(num_fil=1, ll = f_h5, wd = wdir){
 
   # find the name of file
   name_h5 <- nm.ls(num_fil)
 
   # files import
-  act_h5 <- paste0("h5/",dir("h5")[num_fil]) %>% H5Fopen()
+  act_h5 <- paste0("h5/",dir(paste0(wd,"/h5"))[num_fil]) %>% H5Fopen()
 
   # abscissa extraction [~160 000 pts]
   xMS <- act_h5$FullSpectra$MassAxis
@@ -400,7 +400,7 @@ read.h5 <- function(num_fil=1, ll = f_h5){
 #' #
 #' # setwd(wd)
 #' # sp <- import.h5(wd)
-import.h5 <- function(wdir = getwd()){ #  wdir =  "C:/Users/huguenin/Documents/R/provoc test/data test/R1004"
+import.h5 <- function(wdir = getwd()){
   if(("Figures" %in% dir())==FALSE){
     dir.create("Figures")
     dir.create("Figures/Control")
@@ -412,11 +412,11 @@ import.h5 <- function(wdir = getwd()){ #  wdir =  "C:/Users/huguenin/Documents/R
   }
 
   # data importation ####
-  f_h5 <- dir("h5") %>% grep(".h5",.)     # localise h5 files
+  f_h5 <- dir(paste0(wdir,"/h5")) %>% grep(".h5",.)     # localise h5 files
 
   length(citation.list) %>% sample(1) %>% citation.list[[.]] %>% cat()
   cat(" \n - - - - - - - - - - - - - - - \n")
-  list_h5 <- lapply(f_h5, read.h5, ll = f_h5)
+  list_h5 <- lapply(f_h5, read.h5, ll = f_h5, wd = wdir)
 
   # formating of sp list ####
   sp <- list()
@@ -1323,6 +1323,7 @@ which.sup <- function(vec, threshold){return(which(vec > threshold))}
 #' @param num a numeric vector
 #' @param w_dir working directory
 #' @return a list with informations
+#' @noRd
 export.info <- function(num = 1 , w_dir = w_d){
 
   # files import

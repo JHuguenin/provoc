@@ -110,6 +110,9 @@ You can control part of the analysis with the "meta_empty.csv" file. It is in th
 
 You can prepare several meta files. By activating or not the acquisitions, it is possible to make different analyses. This allows you to do only one import (often long). You can rename the files meta_1, meta_2 or with more explicit names. 
 
+If the import is stopped because of a corrupted file, use `info.h5()` and
+`delete.spectra.h5()` to correct this file.
+
 ## Preparation
 
 ```{r meta data, eval = FALSE}
