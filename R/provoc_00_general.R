@@ -23,6 +23,10 @@
 #' @importFrom MALDIquant smoothIntensity
 #' @importFrom rhdf5 H5Fclose
 #' @importFrom rhdf5 H5Fopen
+#' @importFrom rhdf5 h5closeAll
+#' @importFrom rhdf5 h5createFile
+#' @importFrom rhdf5 h5ls
+#' @importFrom rhdf5 h5write
 #' @importFrom rmarkdown render
 #' @importFrom scales alpha
 #' @importFrom stats density
@@ -396,8 +400,7 @@ read.h5 <- function(num_fil=1, ll = f_h5){
 #' #
 #' # setwd(wd)
 #' # sp <- import.h5(wd)
-import.h5 <- function(wdir = getwd()){
-
+import.h5 <- function(wdir = getwd()){ #  wdir =  "C:/Users/huguenin/Documents/R/provoc test/data test/R1004"
   if(("Figures" %in% dir())==FALSE){
     dir.create("Figures")
     dir.create("Figures/Control")
@@ -1305,11 +1308,179 @@ which.na <- function(x){which(is.na(x) == TRUE)}
 #' @noRd
 which.not.na <- function(x){which(is.na(x) == FALSE)}
 
-# return the index of elements superior of theshold.
+#' return the index of elements superior of theshold.
 #' @param vec a numeric vector
 #' @param threshold a number
 #' @return index
 #' @noRd
 which.sup <- function(vec, threshold){return(which(vec > threshold))}
+
+#### Provoc_05_modify H5 ####
+#### Manip h5 files ####
+
+
+#' extrat info of h5 file
+#' @param num a numeric vector
+#' @param w_dir working directory
+#' @return a list with informations
+export.info <- function(num = 1 , w_dir = w_d){
+
+  # files import
+  act_h5 <- dir(paste0(w_dir,"/h5"))[num] %>% paste0(w_dir,"/h5/",.) %>% H5Fopen()
+  all_MS <- act_h5$FullSpectra$TofData[,1,,]
+  all_timing <- act_h5$TimingData$BufTimes
+  H5Fclose(act_h5)
+
+  # title
+  nm_h5 <- dir(paste0(w_dir,"/h5"))[num]
+  nm_h5 <- str_remove_all(nm_h5,paste0(w_dir,"/h5/"))
+  nm_h5 <- str_remove_all(nm_h5,"_20......_......")
+  nm_h5 <- str_remove_all(nm_h5,"20......_......_")
+  nm_h5 <- str_remove_all(nm_h5,".h5")
+
+  # intensities extraction [ acquisition number * 160 000 pts]
+  fmr <- dim(all_MS)
+  dim(all_MS) <- c(fmr[1], fmr[2] * fmr[3]) # for 2d array
+
+  # timing extraction
+  dim(all_timing) <- c(fmr[2] * fmr[3])
+  timing <-  diff(all_timing) %>% mean() %>% round(2)
+
+  pres <- c(timing,dim(all_MS)) %>% as.matrix()
+  colnames(pres) <- nm_h5
+  rownames(pres) <- c("acq time (s)", "length abs", "nbr spectra")
+
+  # combine
+  mat <- rbind(apply(all_MS,2,mean),
+               apply(all_MS,2,median),
+               apply(all_MS,2,max))
+  rownames(mat) <- c("mean", " median", "max")
+
+  fmr <- dim(all_MS)[2] %>% dizaine() %>% log(10) %>% round() %>% add(1)
+  fmr <- str_pad(1:dim(all_MS)[2], width = fmr, pad = "0")
+  colnames(mat) <- paste0(nm_h5, "_", fmr)
+
+  # rep <- list("name" = nm_h5, "pres" = c(timing,dim(all_MS)), "mat" =  mat)
+  rep <- list("pres" = pres, "mat" =  mat)
+  return(rep)
+}
+
+#' summarise the h5 files
+#'
+#' the function return a list of two objects, one matrix and one list. The summary show all acquisitions in column
+#' and others informations in row. Theses informations are the ID, the acquisition time (in second),
+#' the length of x mass, the number of spectra, index of start and end, and
+#' the smallest value among the maximum intensities of each spectrum of the acquisition.
+#'
+#' the other list is order by ID. Each table includes the average, median and
+#' maximum intensities of each spectrum of the acquisition.
+#' @param w_d working directory
+#' @return a list with informations
+#' @export
+#' @examples
+#' # l_info <- info.h5()
+#' # l_info$summary
+#'
+#' # A2_20  A2_30  A2_40  A3_20  A3_30  A3_40
+#' # ID                1      2      3      4      5      6
+#' # acq time (s)     10     10     10     10     10      0
+#' # length abs   158768 158768 158768 158768 158768 158768
+#' # nbr spectra     180    180    180    180    180    176
+#' # start             1    181    361    541    721    901
+#' # end             180    360    540    720    900   1076
+#' # min Imax     184083 112189 251471  47338 137394      0
+#'
+#' # We can view than the A3_40, ID 6, have an intensity at zero. And more, all
+#' # acquisitions are 180 spectra and acquisition during 10 seconds except the ID 6.
+#'
+#' # l_info$$byID[[6]]
+#' #         A3_40_174    A3_40_175     A3_40_176
+#' # mean    407.22151    404.94106             0
+#' # median  13.36089     13.32512              0
+#' # max     792628.75    789557.87             0
+#'
+#' # The last spectra is corrompted. We should deleted the number 176.
+#'
+info.h5 <- function(w_d = getwd()){
+  all_fil <- grep(".h5", dir(paste0(w_d,"/h5")))
+
+  oldw <- getOption("warn")
+  options(warn = -1)
+  l_info <- lapply(all_fil, export.info, w_dir = w_d)
+  options(warn = oldw)
+
+  l_mat <-  lapply(l_info, function(liste) liste$mat) %>% as.data.frame()
+  l_pres <- lapply(l_info, function(liste) liste$pres) %>% as.data.frame()
+  fmr <- lapply(colnames(l_pres), grep, x = colnames(l_mat)) %>% sapply(range)
+  colnames(fmr) <- colnames(l_pres)
+  l_pres <- rbind(1:ncol(l_pres),l_pres,fmr,rep(0,ncol(l_pres)))
+  for(i in 1:ncol(l_pres)) l_pres[7,i] <- round(min(l_mat[3,l_pres[5,i]:l_pres[6,i]]))
+  rownames(l_pres)[c(1,5,6,7)] <- c("ID","start","end","min Imax")
+
+  l_mat <-  lapply(l_info, function(liste) liste$mat)
+
+  l_info <- list("byID" = l_mat, "summary" = l_pres)
+  return(l_info)
+}
+
+#' delete a couple of specrta in a h5 file
+#'
+#' sometimes, an experience is stopped brutaly. The last spectra is corrupted.
+#' The file can be reading by the import.h5() function. info.h5 and delete.spectra.h5()
+#' can be used for resolving the problem.
+#' @param ID_h5 the ID give by info.h5()
+#' @param num the number correspoding at the spectra corrupted
+#' @param w_d working directory
+#' @return a modifiy h5 file.
+#' @export
+#' @examples
+#' # Use the info.h5() function before use that. And read the help for understand why
+#' # we deleted the spectra number 176 of ID6.
+#'
+#' # delete.spectra.h5(6,176)
+#'
+#' # After that, you have a new h5 file (mod_A3_40.h5). You can exhile the original file.
+delete.spectra.h5 <- function(ID_h5 = 1, num = 1, w_d = getwd()){
+
+  #mod option
+  oldw <- getOption("warn")
+  options(warn = -1)
+
+  # File opened
+  act_h5 <- dir(paste0(w_d,"/h5"))[ID_h5] %>% paste0(w_d,"/h5/",.) %>% H5Fopen()
+
+  # copy in temporary object
+  H5 <- list()
+  H5$FullSpectra <- act_h5$FullSpectra
+  H5$FullSpectra$SaturationWarning <- NULL
+  H5$FullSpectra$SumSpectrum <- NULL
+  H5$TimingData$BufTimes <- act_h5$TimingData$BufTimes
+  H5$TPS2$TwData <- act_h5$TPS2$TwData
+  H5$TPS2$TwInfo <- act_h5$TPS2$TwInfo
+  H5$AcquisitionLog <- act_h5$AcquisitionLog
+
+  # File closed
+  H5Fclose(act_h5)
+
+  # modified H5
+  fmr <- dim(H5$FullSpectra$TofData[,1,,])
+  d3_num <- divide_by(num, fmr[2]) %>% floor()
+  H5$FullSpectra$TofData <- H5$FullSpectra$TofData[,1,,-d3_num]
+  dim(H5$FullSpectra$TofData) <- c(dim(H5$FullSpectra$TofData)[1],1,dim(H5$FullSpectra$TofData)[2:3])
+  H5$TimingData$BufTimes <- H5$TimingData$BufTimes[,-d3_num]
+  H5$TPS2$TwData <- H5$TPS2$TwData[,,-d3_num]
+
+  #create .h5 file
+  nom <- dir(paste0(w_d,"/h5"))[ID_h5] %>% paste0(w_d,"/h5/mod_",.)
+  h5createFile(nom)
+  h5write(H5$FullSpectra, nom, "FullSpectra")
+  h5write(H5$TPS2, nom, "TPS2")
+  h5write(H5$TimingData, nom, "TimingData")
+  h5write(H5$AcquisitionLog, nom, "AcquisitionLog")
+  h5closeAll()
+
+  # option re-init
+  options(warn = oldw)
+}
 
 #### End of Code ####
