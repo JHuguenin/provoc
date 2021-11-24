@@ -282,7 +282,7 @@ empty.meta <- function(L = sp){
     cbind(L$names, 1:nb_acq, L$nbr_sp, ns, ne, rep(TRUE, nb_acq),.) %>%
     rbind(header,.)
 
-  write.table(mt, file = "meta_empty.csv", sep = ";", dec = ",", row.names = FALSE, col.names = FALSE)
+  write.table(mt, file = paste0(L$wd,"/meta_empty.csv"), sep = ";", dec = ",", row.names = FALSE, col.names = FALSE)
 
   colnames(mt) <- header
   mt <- mt[-1, -1]
@@ -303,7 +303,7 @@ empty.meta <- function(L = sp){
 #' # sp <- import.meta("meta_1")
 import.meta <- function(nm = "meta_empty", L = sp){
 
-  mt <- read.table(paste0(nm,".csv"), sep = ";", dec = ",", header = TRUE, row.names = 1, stringsAsFactors = FALSE)
+  mt <- read.table(paste0(L$wd,"/",nm,".csv"), sep = ";", dec = ",", header = TRUE, row.names = 1, stringsAsFactors = FALSE)
   colnames(mt)[1:11] <- c("ID", "nbr_MS", "start", "end", "used", "blank (ID)", "color",
                           "concentration","unit","acq_T0 (ID)", "delta_T (s)")
   mt <- as.matrix(mt)
@@ -484,8 +484,8 @@ import.h5 <- function(wdir = getwd()){
   sp$acq <- 1:length(sp$names)
   sp$Sacq <- 1:ncol(sp$MS)
 
-  sp <- empty.meta(sp)
-  sp <- list.order(sp)
+  sp <- empty.meta(L = sp)
+  sp <- list.order(L = sp)
 
   hprint("Import is completed")
   return(sp)
@@ -598,8 +598,9 @@ dy.spectra <- function(sel_sp = sp$mt$meta[sp$acq,"end"], L = sp, new_color = FA
     }
     rownames(dysp) <- L$xMS
 
-    ftitre <- paste0(getwd(),"/Figures/") %>% dir() %>% grep(titre, .) %>% length() %>% add(1)
-    ftitre <- paste0(getwd(),"/Figures/dy_",titre,"_",ftitre)
+    ftitre <- paste0(L$wd,"/Figures/") %>% dir() %>% grep(titre, .) %>% length() %>% add(1)
+    ftitre <- str_pad(ftitre,width = 2,pad = "0")
+    ftitre <- paste0(L$wd,"/Figures/dy_",titre,"_",ftitre)
     fmr <- system.file("rmd", "print_dy_sp.Rmd", package = "provoc")
     rmarkdown::render(input = fmr, output_file = ftitre)
   }
@@ -650,8 +651,8 @@ fx.spectra <- function(sel_sp = sp$mt$meta[sp$acq,"end"], pkm = 59, pkM = 205,
   # define title
   if(length(sel_sp)==1) new_title <- paste0("fx_",colnames(L$MS)[sel_sp])
 
-  ntitre <- paste0(getwd(),"/Figures/") %>% dir() %>% grep(new_title, .) %>% length() %>% add(1)
-  ntitre <- paste0("Figures/",new_title,"_",ntitre,"_zoom_",xmin,"_to_",xmax,".tif")
+  ntitre <- paste0(L$wd,"/Figures/") %>% dir() %>% grep(new_title, .) %>% length() %>% add(1)
+  ntitre <- paste0(L$wd,"/Figures/",new_title,"_",ntitre,"_zoom_",xmin,"_to_",xmax,".tif")
 
   # calculate the max spectra
   if(length(sel_sp)==1) sp_max <- L$MS[cmin:cmax,sel_sp]
@@ -720,8 +721,11 @@ kinetic.plot <- function(M_num = M.Z(c(59, 137)), each_mass = TRUE,
                          group = FALSE, graph_type = "dy", L = sp,
                          Y_exp = FALSE, time_format = "date"){
   # Mise en forme :
-  if(("kinetic" %in% dir("Figures"))==FALSE) dir.create("Figures/kinetic")
+  tit_wd <- paste0(L$wd,"/Figures/kinetic")
+  if(("kinetic" %in% dir(paste0(L$wd,"/Figures")))==FALSE) dir.create(tit_wd)
   vp <- list(exp = Y_exp, time = time_format, grp = group)
+
+  tit_wd <- paste0(tit_wd,"/pk_at")
 
   # Graphe :
 
@@ -743,8 +747,7 @@ kinetic.plot <- function(M_num = M.Z(c(59, 137)), each_mass = TRUE,
           if(graph_type == "fx"){
             # plot fixe
 
-            titre <- c("Figures/kinetic/pk_at", ma,"of",u) %>%
-              str_flatten(" ") %>% paste0("_",vp$time,".tiff")
+            titre <- c(tit_wd, ma,"of",u) %>% str_flatten(" ") %>% paste0("_",vp$time,".tiff")
             fx.kinetic.plot(L, titre, acq = ind_PK, MA = ma, VP = vp)
 
           }else if(graph_type == "dy"){
@@ -761,7 +764,7 @@ kinetic.plot <- function(M_num = M.Z(c(59, 137)), each_mass = TRUE,
         if(graph_type == "fx"){
           # plot statique
 
-          titre <- c("Figures/kinetic/pk_at", ma,"of",head(row.names(L$mt$meta)[L$acq])) %>%
+          titre <- c(tit_wd, ma,"of",head(row.names(L$mt$meta)[L$acq])) %>%
             str_flatten(" ") %>% paste0("_",vp$time,".tiff")
           fx.kinetic.plot(L, titre, acq = L$acq, MA = ma, VP = vp)
         }else if(graph_type == "dy"){
@@ -788,7 +791,7 @@ kinetic.plot <- function(M_num = M.Z(c(59, 137)), each_mass = TRUE,
         if(graph_type == "fx"){
           # plot fixe
 
-          titre <- c("Figures/kinetic/pk_at", ma,"of",u) %>%
+          titre <- c(tit_wd, ma,"of",u) %>%
             str_flatten(" ") %>% paste0("_",vp$time,".tiff")
           fx.kinetic.plot(L, titre, acq = ind_PK, MA = ma, VP = vp)
 
@@ -805,7 +808,7 @@ kinetic.plot <- function(M_num = M.Z(c(59, 137)), each_mass = TRUE,
       if(graph_type == "fx"){
         # plot statique
 
-        titre <- c("Figures/kinetic/pk_at", ma,"of",head(row.names(L$mt$meta)[L$acq])) %>%
+        titre <- c(tit_wd, ma,"of",head(row.names(L$mt$meta)[L$acq])) %>%
           str_flatten(" ") %>% paste0("_",vp$time,".tiff")
         fx.kinetic.plot(L, titre, acq = L$acq, MA = ma, VP = vp)
 
@@ -1485,3 +1488,13 @@ delete.spectra.h5 <- function(ID_h5 = 1, num = 1, w_d = getwd()){
 }
 
 #### End of Code ####
+
+# library(magrittr)
+# library(dygraphs)
+# library(MALDIquant)
+# library(rhdf5)
+# library(rmarkdown)
+# library(scales)
+# library(stringr)
+# library(viridis)
+# library(xts)
