@@ -465,9 +465,9 @@ import.h5 <- function(wdir = getwd()){
 
   pk_param <- list(method = "MAD", halWindoSize = 5, SNR = 10) # SuperSmoother
   sp$peaks <- detectPeaks(sp$MS,
-                          method = pk_det_param$method,
-                          halfWindowSize = pk_det_param$halWindoSize,
-                          SNR = pk_det_param$SNR)
+                          method = pk_param$method,
+                          halfWindowSize = pk_param$halWindoSize,
+                          SNR = pk_param$SNR)
 
   sp$peaks <- binPeaks(sp$peaks, tolerance=0.01)
   sp$peaks <- MALDIquant::filterPeaks(sp$peaks, minFrequency=0.005)
