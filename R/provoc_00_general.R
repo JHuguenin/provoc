@@ -43,7 +43,6 @@ NULL
 #### Fonction inutile ####
 citation.list <- {list(
   c("Il faut aller trop loin pour decouvrir les limites.", "Joris Huguenin"),
-  c("Les trous dans les pantalons, c'est comme les enfants, ca n'arrete pas de grandir", "Joris Huguenin"),
   c("Dieu, aie pitie de nous, nous sommes a la merci des ingenieurs !", 'Dr.Malcom, Jurassic Park'),
   c("Grab a brush and put on a little make-up.","System of a Down"),
   c("The Sun Machine is Coming Down, and We're Gonna Have a Party.", "David Bowie"),
@@ -88,6 +87,7 @@ citation.list <- {list(
   c("N'attendez pas d'etre heureux pour sourire. Souriez plutot afin d'etre heureux.", "Edward L. Kramer"),
   c("Si tu fais ce que tu as toujours fait, tu obtiendras ce que tu as toujours obtenu.", "Tony Robbins"),
   c("Redemarrage de l'evaluation d'une promesse interrompue.", "R poetic warning message"),
+  c("Error in chol.default(Winv) : le mineur dominant d'ordre 118 n'est pas defini positif", "rchemo error message"),
   c("Je suis gentil avec tout le monde, celui qui dit le contraire je lui foutrai mon poing dans la gueule.", "Leo Ferre"),
   c("Le desespoir est une forme superieure de la critique.", "Leo Ferre"),
   c("Les diplomes sont faits pour les gens qui n'ont pas de talent.","Pierre Desproges"),
@@ -325,7 +325,7 @@ import.meta <- function(nm = "meta_empty", L = sp){
   return(L)
 }
 
-#### Provoc_02_gest_meta ####
+#### Provoc_02_importation ####
 #### Importation ####
 
 #' Read one file h5
@@ -463,9 +463,14 @@ import.h5 <- function(wdir = getwd()){
   # peak detection ####
   hprint("Peak detection")
 
-  sp$peaks <- detectPeaks(sp$MS, method="MAD", halfWindowSize=20, SNR=5)
+  pk_param <- list(method = "MAD", halWindoSize = 5, SNR = 10) # SuperSmoother
+  sp$peaks <- detectPeaks(sp$MS,
+                          method = pk_det_param$method,
+                          halfWindowSize = pk_det_param$halWindoSize,
+                          SNR = pk_det_param$SNR)
+
   sp$peaks <- binPeaks(sp$peaks, tolerance=0.01)
-  sp$peaks <- MALDIquant::filterPeaks(sp$peaks, minFrequency=0.25)
+  sp$peaks <- MALDIquant::filterPeaks(sp$peaks, minFrequency=0.005)
   sp$peaks <- intensityMatrix(sp$peaks, sp$MS)
   colnames(sp$peaks) <- colnames(sp$peaks) %>% as.numeric() %>% round(3)
 
@@ -521,7 +526,7 @@ red.xMS <- function(L=sp){
 
   {
     # # graphe de vision
-    # tiff(paste("Densité des masses maximum.tiff"))
+    # tiff(paste("Densite des masses maximum.tiff"))
     #  plot(dMS, main="Density",xlim = c(0, thr*2))
     #  abline(v = thr, lty = 2, lwd = 2, col = "red")
     #  legend("topright", bty = "n",
@@ -530,13 +535,13 @@ red.xMS <- function(L=sp){
     # dev.off()
     #
     # plot.threshold <- function(br, L= sp, z = c(0,300), ind_d = indinf, ind_k = indinf[kp],inu = inull){
-    #  tiff(paste("Vue des masses supprimées de",br[1],"à",br[2],"Da.tiff"))
+    #  tiff(paste("Vue des masses supprimees de",br[1],"a",br[2],"Da.tiff"))
     #    a <- det.c(br[1],L$xMS):det.c(br[2],L$xMS)
     #    matplot(sp$xMS[a],maxMS[a], type = "l", ylim = z,
-    #            xlab = "m/z (Da)", ylab = "intensité (u.a.)",
-    #            main = "Spectre de l'intensité maximale de chaque masse")
+    #            xlab = "m/z (Da)", ylab = "intensite (u.a.)",
+    #            main = "Spectre de l'intensite maximale de chaque masse")
     #    legend("topleft", bty = "n", lty = 1, col = c("black","blue","red"),
-    #           legend = c("spectre max","masses supprimées", "masses gardées"))
+    #           legend = c("spectre max","masses supprimees", "masses gardees"))
     #    abline(h = thr, lty = 2, lwd = 0.8)
     #    b <- det.c(br[1],L$xMS[-inu]):det.c(br[2],L$xMS[-inu])
     #    matplot(L$xMS[-inu][b], t(L$MS[,-inu][,b]), type = "l", lty = 1,
@@ -562,7 +567,7 @@ red.xMS <- function(L=sp){
   return(L)
 }
 
-#### Provoc_03_gest_meta ####
+#### Provoc_03_export_figures ####
 #### Plot spectra ####
 
 #' Plot spectra dynamic.
@@ -1044,7 +1049,45 @@ dy.mat.pk <- function(ac = acq, ipk = ind_pk, La = List_abs, Li = L, vp = VP){
   return(fmr)
 }
 
-#### Provoc_04_gest_meta ####
+#### Control Peak ####
+
+
+#' print a graph with MS and peaks detected.
+#'
+#' The graph will be centered on peak. It is not necessary to be precise for this number.
+#' @param peak a number corresponding to a mass to be checked
+#' @param L sp
+#' @return a plot
+#' @export
+#' @examples
+#' # for(i in 50:210) peak.ctrl(i)
+peak.ctrl <- function(peak = 137, L = sp){
+
+  if("Peak_ctrl" %in% dir(paste0(L$wd,"/Figures/"))==FALSE){
+    dir.create(paste0(L$wd,"/Figures/Peak_ctrl"))
+  }
+
+  zm <- c(peak-.3,peak+.3)
+  brm <- det.c(zm[1],L$xMS)
+  brM <- det.c(zm[2],L$xMS)
+
+  ntitre <- paste0("Figures/Peak_ctrl/MS_vs_peak_at_",peak,"_Da.tiff")
+  pk <- colnames(L$peaks) %>% as.numeric()
+
+  if(length(L$xMS[brm:brM]) >1){
+    tiff(filename = ntitre, width = 1000, height = 580)
+    par(mar = c(5,5,5,0.1), cex.main=2, cex.lab = 2, cex.axis = 2, mgp = c(3.5,1.5,0))
+
+    matplot(L$xMS[brm:brM], L$MS[brm:brM,], type = "l",
+            col = alpha("chartreuse3", 0.5),
+            main = paste("MS (green) vs peaks (orange) at",peak,"Da"),
+            xlab = "m/z (Da)", ylab = "intensity (a.u.)")
+    matplot(pk, t(L$peaks), pch = 16, col = alpha("darkorange3",0.5), add = TRUE)
+    dev.off()
+  }
+}
+
+#### Provoc_04_others_functions ####
 #### micro-functions ####
 
 #' print garbage collection
