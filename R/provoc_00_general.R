@@ -744,22 +744,24 @@ kinetic.plot <- function(M_num = M.Z(c(59, 137)), each_mass = TRUE,
       if(group != FALSE){
         # OUI
         grp <- L$mt$meta[,group][L$acq] %>% as.character() # on repere les groupes
-        for(u in unique(grp)){ # u = grp[1]
+        for(u in unique(grp)){ # u = unique(grp)[1]
 
-          ind_PK <- L$acq[which(u == grp)]              # on repere les indices de chaques groupes
+          save_acq <- L$acq
+          L$acq <- which(u == L$mt$meta[,group]) %>% intersect(L$acq)
 
           # Etape 3 : plot statique ou dynamique ?
           if(graph_type == "fx"){
             # plot fixe
 
             titre <- c(tit_wd, ma,"of",u) %>% str_flatten(" ") %>% paste0("_",vp$time,".tiff")
-            fx.kinetic.plot(L, titre, acq = ind_PK, MA = ma, VP = vp)
+            fx.kinetic.plot(L, titre, acq = L$acq, MA = ma, VP = vp)
 
           }else if(graph_type == "dy"){
             # plot dynamique
             titre <- str_flatten(ma, collapse = " ") %>% paste("peak at",.,"of", u, vp$time)
-            dy.kinetic.plot(L, titre, acq = ind_PK, MA = ma, VP = vp)
+            dy.kinetic.plot(L, titre, acq = L$acq, MA = ma, VP = vp)
           }
+          L$acq <- save_acq
         }
 
       }else{
@@ -790,7 +792,8 @@ kinetic.plot <- function(M_num = M.Z(c(59, 137)), each_mass = TRUE,
       grp <- L$mt$meta[,group][L$acq] %>% as.character() # on repere les groupes
       for(u in unique(grp)){# u = unique(grp)[1]
 
-        ind_PK <- L$acq[which(u == grp)]              # on repere les indices de chaques groupes
+        save_acq <- L$acq
+        L$acq <- which(u == L$mt$meta[,group]) %>% intersect(L$acq) # on repere les indices de chaques groupes
 
         # Etape 3 : plot statique ou dynamique ?
         if(graph_type == "fx"){
@@ -798,13 +801,14 @@ kinetic.plot <- function(M_num = M.Z(c(59, 137)), each_mass = TRUE,
 
           titre <- c(tit_wd, ma,"of",u) %>%
             str_flatten(" ") %>% paste0("_",vp$time,".tiff")
-          fx.kinetic.plot(L, titre, acq = ind_PK, MA = ma, VP = vp)
+          fx.kinetic.plot(L, titre, acq = L$acq, MA = ma, VP = vp)
 
         }else if(graph_type == "dy"){
           # plot dynamique
           titre <- str_flatten(ma, collapse = " ") %>% paste("peak at",.,"of", u, vp$time)
-          dy.kinetic.plot(L, titre, acq = ind_PK, MA = ma, VP = vp)
+          dy.kinetic.plot(L, titre, acq = L$acq, MA = ma, VP = vp)
         }
+        L$acq <- save_acq
       }
     }else{
       # NON
@@ -825,7 +829,6 @@ kinetic.plot <- function(M_num = M.Z(c(59, 137)), each_mass = TRUE,
     }
   }
 }
-
 #' a internal fonction. Use kinetic.plot()
 #' @param L sp
 #' @param titre a string of character
@@ -982,7 +985,7 @@ dy.kinetic.plot <- function(L, titre, acq = ind_PK, MA = ma, VP = vp){
   if(VP$time == "date"){
     Cdate <- as.POSIXct(Sys.time(), format="%m/%d/%Y %H:%M:%S")
     attr(Cdate, "tzone") <- "UTC"
-    for(i in acq) Cdate <- c(Cdate, L$Trecalc$date[[i]])
+    for(i in 1:nrow(L$mt$meta)) Cdate <- c(Cdate, L$Trecalc$date[[i]])
     Cdate <- Cdate[-1]
     Tbn <- range(Cdate)
 
@@ -1001,6 +1004,8 @@ dy.kinetic.plot <- function(L, titre, acq = ind_PK, MA = ma, VP = vp){
   dy_mat <- sapply(acq, dy.mat.pk, ipk = ind_pk, La = List_abs, Li = L,
                    vp = VP, simplify = FALSE)
 
+  if(VP$grp != FALSE) dy_mat <- lapply(dy_mat, dy.trans.ID)
+
   # convert to data.frame
   ldy <- length(dy_mat)
   if(ldy == 1){
@@ -1014,7 +1019,7 @@ dy.kinetic.plot <- function(L, titre, acq = ind_PK, MA = ma, VP = vp){
     }
   }
   dysp$ID <- NULL
-  dycol <- unname(L$mt$meta[acq,"color"])
+  dycol <- unname(L$mt$meta[acq,"color"]) %>% rep(each = length(MA))
 
   # and plot
   if(VP$time == "date"){
@@ -1041,16 +1046,27 @@ dy.kinetic.plot <- function(L, titre, acq = ind_PK, MA = ma, VP = vp){
 #' @noRd
 dy.mat.pk <- function(ac = acq, ipk = ind_pk, La = List_abs, Li = L, vp = VP){
 
+  eq_acq <- which(Li$acq == ac)
+
   if(vp$grp == FALSE) nid <- rownames(Li$mt$meta)[ac]
   if(vp$grp != FALSE) nid <- Li$mt$meta[ac,vp$grp]
 
-  fmr <- rep(Li$mt$meta[ac,"ID"], length(La[[ac]])) %>% as.numeric()
-  fmr <- cbind(La[[ac]],fmr, Li$peaks[ind.acq(ac,Li), ipk])
+  fmr <- rep(Li$mt$meta[ac,"ID"], length(La[[eq_acq]])) %>% as.numeric()
+  fmr <- cbind(La[[eq_acq]],fmr, Li$peaks[ind.acq(ac,Li), ipk])
   colnames(fmr) <- c("xT","ID", paste(nid, colnames(Li$peaks)[ipk]))
 
   return(fmr)
 }
 
+
+#' a internal fonction. Use kinetic.plot()
+#' @param li a list
+#' @return another list
+#' @noRd
+dy.trans.ID <- function(li){
+  colnames(li)[-(1:2)] <- paste(colnames(li)[-(1:2)],li[1,2])
+  return(li)
+}
 
 #### Control Peak ####
 
