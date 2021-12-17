@@ -974,6 +974,8 @@ dy.kinetic.plot <- function(L, titre, acq = ind_PK, MA = ma, VP = vp){
 
     Xlab <- paste0("Time (",unit,")")
     List_abs <- lapply(L$Trecalc$timing, divide_by, e2 = Tdiv)
+    l_acq <- apply(L$mt$meta, 1, function(mat) as.numeric(mat["start"]):as.numeric(mat["end"]))
+    List_abs <- lapply(l_acq, function(liste, Tlist) unlist(Tlist)[liste], Tlist = List_abs)
   }
 
   # or date
@@ -984,11 +986,11 @@ dy.kinetic.plot <- function(L, titre, acq = ind_PK, MA = ma, VP = vp){
     Cdate <- Cdate[-1]
     Tbn <- range(Cdate)
 
-    Xlab <- paste0("Date")
-    List_abs <- L$Trecalc$date
+    Xlab <- "Date"
+
+    List_abs <- sapply(acq, function(acq) Cdate[ind.acq(acq,L)])
   }
 
-  # pk_col <- L$mt$meta[,"color"]
   if(VP$exp == FALSE) VP$exp <- ""
   if(VP$exp == TRUE){
     VP$exp <- "y"
@@ -1011,13 +1013,13 @@ dy.kinetic.plot <- function(L, titre, acq = ind_PK, MA = ma, VP = vp){
       }
     }
   }
-  #dysp <- dysp[order(dysp[,3], dysp[,1]),]
   dysp$ID <- NULL
+  dycol <- unname(L$mt$meta[acq,"color"])
 
   # and plot
   if(VP$time == "date"){
-    dysp$xT <- as.POSIXct(dysp$xT, origin = "1970-01-01", tz = "GMT")
-    dysp <- xts::xts(dysp[,-1], order.by = dysp$xT, tz="GMT")
+    dysp$xT <- as.POSIXct(Cdate[ind_Sacq], origin = "1970-01-01", tz = "")
+    dysp <- xts::xts(dysp[,-1], order.by = dysp$xT, tz = "")
 
     fmr <- system.file("rmd", "print_dypk_date.Rmd", package = "provoc")
     rmarkdown::render(input = fmr,
@@ -1048,6 +1050,7 @@ dy.mat.pk <- function(ac = acq, ipk = ind_pk, La = List_abs, Li = L, vp = VP){
 
   return(fmr)
 }
+
 
 #### Control Peak ####
 

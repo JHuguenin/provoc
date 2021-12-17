@@ -7,7 +7,7 @@ output: html_document
       dyAxis("y", label = "Intensity (a.u.)") %>% 
       dyAxis("x", label = paste("Time")) %>%
       dyRangeSelector(keepMouseZoom = TRUE) %>%
-      dyOptions(stackedGraph = FALSE, fillGraph = TRUE,
+      dyOptions(stackedGraph = FALSE, fillGraph = TRUE, colors = dycol,
                 axisLineWidth = 1.5, gridLineColor = "lightblue",
                 connectSeparatedPoints = TRUE) %>% 
       dyLegend(show = "onmouseover", hideOnMouseOut = TRUE) %>% 
