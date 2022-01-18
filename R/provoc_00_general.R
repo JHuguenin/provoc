@@ -627,7 +627,7 @@ dy.spectra <- function(sel_sp = sp$mt$meta[sp$acq,"end"], L = sp, new_color = FA
 #' # For a large spectre :
 #' # fx.spectra(sel_sp = sp$mt$meta[sp$acq,"end"], pkm = 137, pkM = 137, leg = "l")
 #' #
-#' # for juste one peak :
+#' # for just one peak :
 #' # fx.spectra(seq(1,100, by = 10), pkm = 59, pkM = 150)
 fx.spectra <- function(sel_sp = sp$mt$meta[sp$acq,"end"], pkm = 59, pkM = 205,
                        L = sp, new_title = "fx_spectra", new_color = FALSE, leg = "r"){
@@ -904,15 +904,15 @@ fx.kinetic.plot <- function(L, titre, acq = ind_PK, MA = ma, VP = vp){
     nq <- nq + 1
     for(j in ind_pk){ # j = ind_pk[2]
       coor <- ind.acq(i,L)
-
+      xx <- unlist(List_abs)[coor]
       if(length(coor)>1){
         fmr <- length(coor) + (1-nq)*round(length(coor)/30)
-        matplot(List_abs[[i]], L$peaks[coor,j], type = "l", lwd = 2,
+        matplot(xx, L$peaks[coor,j], type = "l", lwd = 2,
                 col = pk_col[i], add = TRUE)
-        matplot(List_abs[[i]], L$peaks[coor,j],
+        matplot(xx, L$peaks[coor,j],
                 pch = cl, col = pk_col[i], cex = 2, add = TRUE)
       }else{
-        matplot(List_abs[[i]], L$peaks[coor,j],
+        matplot(xx, L$peaks[coor,j],
                 pch = cl, col = pk_col[i], add = TRUE)
       }
       cl <- cl + 1
@@ -1098,7 +1098,7 @@ peak.ctrl <- function(peak = 137, L = sp){
     par(mar = c(5,5,5,0.1), cex.main=2, cex.lab = 2, cex.axis = 2, mgp = c(3.5,1.5,0))
 
     matplot(L$xMS[brm:brM], L$MS[brm:brM,], type = "l",
-            col = alpha("chartreuse3", 0.5),
+            col = viridis(ncol(L$MS), alpha= 0.5),
             main = paste("MS (green) vs peaks (orange) at",peak,"Da"),
             xlab = "m/z (Da)", ylab = "intensity (a.u.)")
     matplot(pk, t(L$peaks), pch = 16, col = alpha("darkorange3",0.5), add = TRUE)
@@ -1204,7 +1204,9 @@ mass.spectra <- function(spobj){spobj@mass}
 #' # vec <- seq(1,100,by = .2)
 #' # a <- det.c(59.38, vec)
 #' # a = 293. So vec[293] is the most closed of 59,38 than vec.
-det.c <- function(brn,vec){subtract(vec,brn) %>% sapply(abs) %>% which.min()}
+det.c <- function(brn,vec){
+  subtract(vec,brn) %>% sapply(abs) %>% which.min()
+}
 
 #' detect length of x mass
 #' @param splist sp
@@ -1328,6 +1330,7 @@ dizaine <- function(x){
 #' @param ma a number of mass
 #' @param L sp
 #' @return a numeric vector with all the exact mass closed to the mass number
+#' @return a numeric vector with all the exact mass closed to the mass number
 #' @export
 #' @examples
 #' # M.Z(c(59, 137))
@@ -1343,7 +1346,12 @@ M.Z <- function(ma,L=sp){
 #' @param n_acq a number
 #' @param L sp
 #' @return a numeric vector
-#' @noRd
+#' @export
+#' @examples
+#' # For just on acquisition :
+#' # ind.acq(1,sp)
+#' # Or for more :
+#' # sapply(1:10,ind.acq,L=sp,simplify = TRUE)
 ind.acq <- function(n_acq,L){
   fmr <- NULL
   mat_mt <- cbind(as.numeric(L$mt$meta[,"start"]),

@@ -39,6 +39,6 @@ Export a tiff plot for fixed idea, a presentation or an article.
 # For a large spectre :
 # fx.spectra(sel_sp = sp$mt$meta[sp$acq,"end"], pkm = 137, pkM = 137, leg = "l")
 #
-# for juste one peak :
+# for just one peak :
 # fx.spectra(seq(1,100, by = 10), pkm = 59, pkM = 150)
 }

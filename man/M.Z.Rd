@@ -13,6 +13,8 @@ M.Z(ma, L = sp)
 }
 \value{
 a numeric vector with all the exact mass closed to the mass number
+
+a numeric vector with all the exact mass closed to the mass number
 }
 \description{
 search all peak in accord to a mass number
