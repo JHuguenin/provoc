@@ -4,12 +4,14 @@
 \alias{peak.ctrl}
 \title{print a graph with MS and peaks detected.}
 \usage{
-peak.ctrl(peak = 137, L = sp)
+peak.ctrl(peak = 137, L = sp, suffixe = "")
 }
 \arguments{
 \item{peak}{a number corresponding to a mass to be checked}
 
 \item{L}{sp}
+
+\item{suffixe}{a precision about this peak or this serie}
 }
 \value{
 a plot

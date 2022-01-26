@@ -8,6 +8,7 @@
 #' @name provoc
 #'
 #' @import dygraphs
+#' @importFrom baseline baseline.rollingBall
 #' @importFrom magrittr add
 #' @importFrom magrittr divide_by
 #' @importFrom magrittr multiply_by
@@ -89,7 +90,7 @@ citation.list <- {list(
   c("Redemarrage de l'evaluation d'une promesse interrompue.", "R poetic warning message"),
   c("Error in chol.default(Winv) : le mineur dominant d'ordre 118 n'est pas defini positif", "rchemo error message"),
   c("Je suis gentil avec tout le monde, celui qui dit le contraire je lui foutrai mon poing dans la gueule.", "Leo Ferre"),
-  c("Le desespoir est une forme superieure de la critique.", "Leo Ferre"),
+  c("Le desespoir est une forme superieure de critique.", "Leo Ferre"),
   c("Les diplomes sont faits pour les gens qui n'ont pas de talent.","Pierre Desproges"),
   c("Bal tragique a Colombey, un mort.","Hara Kiri"),
   c("Si la matiere grise etait plus rose, le monde aurait moins les idees noires.","Pierre Dac"),
@@ -388,6 +389,8 @@ read.h5 <- function(num_fil=1, ll = f_h5, wd = wdir){
 #'
 #' For use this functions, you must have a folder name "h5" whith acquisition inside.
 #' @param wdir the working directory
+#' @param pk_param a set of parameters for importation and detection peak
+#' @param ctrl_peak logical. An option for create a visual detect peak checking plot
 #' @return sp
 #' @export
 #' @examples
@@ -400,7 +403,20 @@ read.h5 <- function(num_fil=1, ll = f_h5, wd = wdir){
 #' #
 #' # setwd(wd)
 #' # sp <- import.h5(wd)
-import.h5 <- function(wdir = getwd()){
+#' #
+#' # For the parameters :
+#' # pk_param =  c(NULL, "hight", "medium", "low")
+#' # This determine the sensibility of your peak target.
+#' # list(method = "MAD", halfWindowSize = 2, SNR = 40, smooth = 6) #NULL
+#' # list(method = "MAD", halfWindowSize = 2, SNR = 10, smooth = 6) # hight
+#' # list(method = "MAD", halfWindowSize = 5, SNR = 40, smooth = 6) # medium
+#' # list(method = "MAD", halfWindowSize = 10, SNR = 60, smooth = 6) # low
+#' #
+#' # enougth, you can directly choose parameters :
+#' # pk_param = list(method = "MAD", halfWindowSize = 2, SNR = 40, smooth = 6)
+#' # method = "MAD" or "SuperSmoother"
+#' # halfwindSize, SNR and smooth are integers
+import.h5 <- function(wdir = getwd(), pk_param = NULL, ctrl_peak = FALSE){
   if(("Figures" %in% dir(wdir))==FALSE){
     dir.create(paste0(wdir,"/Figures"))
     dir.create(paste0(wdir,"/Figures/Control"))
@@ -410,6 +426,12 @@ import.h5 <- function(wdir = getwd()){
     cat("Sorry but the import can't continue. Create a \"h5\" folder with all .h5 fills that you
         want analyse.")
   }
+
+  # detect peak parameters
+  if(is.null(pk_param) == TRUE) pk_param <- list(method = "MAD", halfWindowSize = 2, SNR = 40, smooth = 6)
+  if(pk_param[[1]] == "hight") pk_param <- list(method = "MAD", halfWindowSize = 2, SNR = 10, smooth = 6)
+  if(pk_param[[1]] == "medium") pk_param <- list(method = "MAD", halfWindowSize = 5, SNR = 40, smooth = 6)
+  if(pk_param[[1]] == "low") pk_param <- list(method = "MAD", halfWindowSize = 10, SNR = 60, smooth = 6)
 
   # data importation ####
   f_h5 <- dir(paste0(wdir,"/h5")) %>% grep(".h5",.)     # localise h5 files
@@ -441,7 +463,13 @@ import.h5 <- function(wdir = getwd()){
   hprint("Reduction")
   sp <- red.xMS(sp)
 
-  # create MassSpectrum object ####
+  # baseline correction ####
+  hprint("Baseline correction")
+  WM <- diff(sp$xMS) %>% mean() %>% divide_by(0.2,.) %>% ceiling()
+  fmr <- baseline.rollingBall(sp$MS, wm = WM, ws = WM)
+  sp$MS <- fmr$corrected
+
+  # Mass spectrum objet ####
   hprint("Create MassSpectrum object")
   sp$MS <- apply(sp$MS,1, create_local_MS, xMS = sp$xMS)
 
@@ -451,7 +479,7 @@ import.h5 <- function(wdir = getwd()){
   options(warn = -1)
   sp$MS <- smoothIntensity(sp$MS,
                            method = "SavitzkyGolay",
-                           halfWindowSize = 3)
+                           halfWindowSize = pk_param$smooth)
   options(warn = oldw)
 
   # align spectra ####
@@ -463,10 +491,10 @@ import.h5 <- function(wdir = getwd()){
   # peak detection ####
   hprint("Peak detection")
 
-  pk_param <- list(method = "MAD", halWindoSize = 5, SNR = 10) # SuperSmoother
+  #pk_param <- list(method = "MAD", halWindoSize = 5, SNR = 10) # SuperSmoother
   sp$peaks <- detectPeaks(sp$MS,
                           method = pk_param$method,
-                          halfWindowSize = pk_param$halWindoSize,
+                          halfWindowSize = pk_param$halfWindowSize,
                           SNR = pk_param$SNR)
 
   sp$peaks <- binPeaks(sp$peaks, tolerance=0.01)
@@ -493,6 +521,17 @@ import.h5 <- function(wdir = getwd()){
   sp <- list.order(L = sp)
 
   hprint("Import is completed")
+
+  if(ctrl_peak == TRUE){
+    hprint("Check the peak detection")
+    sapply(c(50:250), peak.ctrl, L=sp)
+  }else if(ctrl_peak == FALSE){
+    cat("\n Warning ! You don't control the quality of peak detection. You can do it whith :
+        \n sapply(c(50:250), peak.ctrl)
+        \n or
+        \n peak.ctrl(137) \n")
+  }
+
   return(sp)
   # import function is finished ####
 }
@@ -1076,21 +1115,23 @@ dy.trans.ID <- function(li){
 #' The graph will be centered on peak. It is not necessary to be precise for this number.
 #' @param peak a number corresponding to a mass to be checked
 #' @param L sp
+#' @param suffixe a precision about this peak or this serie
 #' @return a plot
 #' @export
 #' @examples
 #' # for(i in 50:210) peak.ctrl(i)
-peak.ctrl <- function(peak = 137, L = sp){
+peak.ctrl <- function(peak = 137, L = sp, suffixe = ""){
 
-  if("Peak_ctrl" %in% dir(paste0(L$wd,"/Figures/"))==FALSE){
-    dir.create(paste0(L$wd,"/Figures/Peak_ctrl"))
+  pk_titre <- paste0("Peak_ctrl",suffixe)
+  if(pk_titre %in% dir(paste0(L$wd,"/Figures/"))==FALSE){
+    dir.create(paste0(L$wd,"/Figures/",pk_titre))
   }
 
   zm <- c(peak-.3,peak+.3)
   brm <- det.c(zm[1],L$xMS)
   brM <- det.c(zm[2],L$xMS)
 
-  ntitre <- paste0("Figures/Peak_ctrl/MS_vs_peak_at_",peak,"_Da.tiff")
+  ntitre <- paste0("Figures/",pk_titre,"/MS_vs_peak_at_",peak,"_Da",suffixe,".tiff")
   pk <- colnames(L$peaks) %>% as.numeric()
 
   if(length(L$xMS[brm:brM]) >1){
@@ -1099,7 +1140,7 @@ peak.ctrl <- function(peak = 137, L = sp){
 
     matplot(L$xMS[brm:brM], L$MS[brm:brM,], type = "l",
             col = viridis(ncol(L$MS), alpha= 0.5),
-            main = paste("MS (green) vs peaks (orange) at",peak,"Da"),
+            main = paste("MS (green) vs peaks (orange) at",peak,"Da",suffixe),
             xlab = "m/z (Da)", ylab = "intensity (a.u.)")
     matplot(pk, t(L$peaks), pch = 16, col = alpha("darkorange3",0.5), add = TRUE)
     dev.off()
@@ -1200,6 +1241,7 @@ mass.spectra <- function(spobj){spobj@mass}
 #' @param brn a number
 #' @param vec a numeric vector
 #' @return a number
+#' @export
 #' @examples
 #' # vec <- seq(1,100,by = .2)
 #' # a <- det.c(59.38, vec)
@@ -1218,6 +1260,8 @@ length.xMS <- function(splist){length(splist$xMS)}
 #' @param txt a character string
 #' @return a character string more the hour
 #' @export
+#' @examples
+#' # hprint(txt = "hello there")
 hprint <- function(txt = "hello there"){
   heure() %>% paste0(txt,", ",.) %>% message()
 }
@@ -1559,8 +1603,9 @@ delete.spectra.h5 <- function(ID_h5 = 1, num = 1, w_d = getwd()){
 
 #### End of Code ####
 
-# library(magrittr)
+# library(baseline)
 # library(dygraphs)
+# library(magrittr)
 # library(MALDIquant)
 # library(rhdf5)
 # library(rmarkdown)

@@ -15,3 +15,6 @@ a character string more the hour
 \description{
 print the text below by the hour
 }
+\examples{
+# hprint(txt = "hello there")
+}

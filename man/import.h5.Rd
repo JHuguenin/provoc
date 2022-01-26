@@ -4,10 +4,14 @@
 \alias{import.h5}
 \title{Import all file.h5 in the h5 folder of working directory.}
 \usage{
-import.h5(wdir = getwd())
+import.h5(wdir = getwd(), pk_param = NULL, ctrl_peak = FALSE)
 }
 \arguments{
 \item{wdir}{the working directory}
+
+\item{pk_param}{a set of parameters for importation and detection peak}
+
+\item{ctrl_peak}{logical. An option for create a visual detect peak checking plot}
 }
 \value{
 sp
@@ -25,4 +29,17 @@ For use this functions, you must have a folder name "h5" whith acquisition insid
 #
 # setwd(wd)
 # sp <- import.h5(wd)
+#
+# For the parameters :
+# pk_param =  c(NULL, "hight", "medium", "low")
+# This determine the sensibility of your peak target.
+# list(method = "MAD", halfWindowSize = 2, SNR = 40, smooth = 6) #NULL
+# list(method = "MAD", halfWindowSize = 2, SNR = 10, smooth = 6) # hight
+# list(method = "MAD", halfWindowSize = 5, SNR = 40, smooth = 6) # medium
+# list(method = "MAD", halfWindowSize = 10, SNR = 60, smooth = 6) # low
+#
+# enougth, you can directly choose parameters :
+# pk_param = list(method = "MAD", halfWindowSize = 2, SNR = 40, smooth = 6)
+# method = "MAD" or "SuperSmoother"
+# halfwindSize, SNR and smooth are integers
 }
