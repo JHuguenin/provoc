@@ -4,7 +4,12 @@
 \alias{import.h5}
 \title{Import all file.h5 in the h5 folder of working directory.}
 \usage{
-import.h5(wdir = getwd(), pk_param = NULL, ctrl_peak = FALSE)
+import.h5(
+  wdir = getwd(),
+  pk_param = NULL,
+  ctrl_peak = FALSE,
+  baseline_correction = TRUE
+)
 }
 \arguments{
 \item{wdir}{the working directory}
@@ -12,6 +17,8 @@ import.h5(wdir = getwd(), pk_param = NULL, ctrl_peak = FALSE)
 \item{pk_param}{a set of parameters for importation and detection peak}
 
 \item{ctrl_peak}{logical. An option for create a visual detect peak checking plot}
+
+\item{baseline_correction}{logical. If TRUE, the baseline is correted}
 }
 \value{
 sp
@@ -31,10 +38,11 @@ For use this functions, you must have a folder name "h5" whith acquisition insid
 # sp <- import.h5(wd)
 #
 # For the parameters :
-# pk_param =  c(NULL, "hight", "medium", "low")
+# pk_param =  c(NULL,"very hight", "hight", "medium", "low")
 # This determine the sensibility of your peak target.
-# list(method = "MAD", halfWindowSize = 2, SNR = 40, smooth = 6) #NULL
-# list(method = "MAD", halfWindowSize = 2, SNR = 10, smooth = 6) # hight
+# list(method = "MAD", halfWindowSize = 5, SNR = 10, smooth = 6) #NULL
+# list(method = "MAD", halfWindowSize = 2, SNR = 10, smooth = 6) # very hight
+# list(method = "MAD", halfWindowSize = 2, SNR = 40, smooth = 6) # hight
 # list(method = "MAD", halfWindowSize = 5, SNR = 40, smooth = 6) # medium
 # list(method = "MAD", halfWindowSize = 10, SNR = 60, smooth = 6) # low
 #

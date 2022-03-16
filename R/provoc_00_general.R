@@ -391,6 +391,7 @@ read.h5 <- function(num_fil=1, ll = f_h5, wd = wdir){
 #' @param wdir the working directory
 #' @param pk_param a set of parameters for importation and detection peak
 #' @param ctrl_peak logical. An option for create a visual detect peak checking plot
+#' @param baseline_correction logical. If TRUE, the baseline is correted
 #' @return sp
 #' @export
 #' @examples
@@ -405,10 +406,11 @@ read.h5 <- function(num_fil=1, ll = f_h5, wd = wdir){
 #' # sp <- import.h5(wd)
 #' #
 #' # For the parameters :
-#' # pk_param =  c(NULL, "hight", "medium", "low")
+#' # pk_param =  c(NULL,"very hight", "hight", "medium", "low")
 #' # This determine the sensibility of your peak target.
-#' # list(method = "MAD", halfWindowSize = 2, SNR = 40, smooth = 6) #NULL
-#' # list(method = "MAD", halfWindowSize = 2, SNR = 10, smooth = 6) # hight
+#' # list(method = "MAD", halfWindowSize = 5, SNR = 10, smooth = 6) #NULL
+#' # list(method = "MAD", halfWindowSize = 2, SNR = 10, smooth = 6) # very hight
+#' # list(method = "MAD", halfWindowSize = 2, SNR = 40, smooth = 6) # hight
 #' # list(method = "MAD", halfWindowSize = 5, SNR = 40, smooth = 6) # medium
 #' # list(method = "MAD", halfWindowSize = 10, SNR = 60, smooth = 6) # low
 #' #
@@ -416,7 +418,7 @@ read.h5 <- function(num_fil=1, ll = f_h5, wd = wdir){
 #' # pk_param = list(method = "MAD", halfWindowSize = 2, SNR = 40, smooth = 6)
 #' # method = "MAD" or "SuperSmoother"
 #' # halfwindSize, SNR and smooth are integers
-import.h5 <- function(wdir = getwd(), pk_param = NULL, ctrl_peak = FALSE){
+import.h5 <- function(wdir = getwd(), pk_param = NULL, ctrl_peak = FALSE, baseline_correction = TRUE){
   if(("Figures" %in% dir(wdir))==FALSE){
     dir.create(paste0(wdir,"/Figures"))
     dir.create(paste0(wdir,"/Figures/Control"))
@@ -428,8 +430,9 @@ import.h5 <- function(wdir = getwd(), pk_param = NULL, ctrl_peak = FALSE){
   }
 
   # detect peak parameters
-  if(is.null(pk_param) == TRUE) pk_param <- list(method = "MAD", halfWindowSize = 2, SNR = 40, smooth = 6)
-  if(pk_param[[1]] == "hight") pk_param <- list(method = "MAD", halfWindowSize = 2, SNR = 10, smooth = 6)
+  if(is.null(pk_param) == TRUE) pk_param <- list(method = "MAD", halfWindowSize = 5, SNR = 10, smooth = 6)
+  if(pk_param[[1]] == "very hight") pk_param <- list(method = "MAD", halfWindowSize = 2, SNR = 10, smooth = 6)
+  if(pk_param[[1]] == "hight") pk_param <- list(method = "MAD", halfWindowSize = 2, SNR = 40, smooth = 6)
   if(pk_param[[1]] == "medium") pk_param <- list(method = "MAD", halfWindowSize = 5, SNR = 40, smooth = 6)
   if(pk_param[[1]] == "low") pk_param <- list(method = "MAD", halfWindowSize = 10, SNR = 60, smooth = 6)
 
@@ -464,10 +467,13 @@ import.h5 <- function(wdir = getwd(), pk_param = NULL, ctrl_peak = FALSE){
   sp <- red.xMS(sp)
 
   # baseline correction ####
-  hprint("Baseline correction")
-  WM <- diff(sp$xMS) %>% mean() %>% divide_by(0.2,.) %>% ceiling()
-  fmr <- baseline.rollingBall(sp$MS, wm = WM, ws = WM)
-  sp$MS <- fmr$corrected
+  if(baseline_correction == TRUE){
+    hprint("Baseline correction")
+    WM <- diff(sp$xMS) %>% mean() %>% divide_by(0.2,.) %>% ceiling()
+    fmr <- baseline.rollingBall(sp$MS, wm = WM, ws = WM)
+    sp$MS <- fmr$corrected
+    remove(fmr)
+  }
 
   # Mass spectrum objet ####
   hprint("Create MassSpectrum object")
@@ -491,7 +497,6 @@ import.h5 <- function(wdir = getwd(), pk_param = NULL, ctrl_peak = FALSE){
   # peak detection ####
   hprint("Peak detection")
 
-  #pk_param <- list(method = "MAD", halWindoSize = 5, SNR = 10) # SuperSmoother
   sp$peaks <- detectPeaks(sp$MS,
                           method = pk_param$method,
                           halfWindowSize = pk_param$halfWindowSize,
@@ -524,7 +529,8 @@ import.h5 <- function(wdir = getwd(), pk_param = NULL, ctrl_peak = FALSE){
 
   if(ctrl_peak == TRUE){
     hprint("Check the peak detection")
-    sapply(c(50:250), peak.ctrl, L=sp)
+    fmr <- colnames(sp$peaks) %>% as.numeric() %>% round(0) %>% unique()
+    sapply(fmr, peak.ctrl, L=sp)
   }else if(ctrl_peak == FALSE){
     cat("\n Warning ! You don't control the quality of peak detection. You can do it whith :
         \n sapply(c(50:250), peak.ctrl)
