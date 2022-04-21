@@ -622,13 +622,14 @@ red.xMS <- function(L=sp){
 #' @param sel_sp a numeric vector with the selection of spectra.
 #' @param L sp
 #' @param new_color Logical TRUE/FALSE
+#' @param name the title of plot and the name of the file.
 #' @return a html plot
 #' @export
 #' @examples
 #' # dy.spectra(sp$mt$meta[sp$acq,"end"], new_color = FALSE)
 #' # dy.spectra(1:50)
 #' # dy.spectra(c(1, 4, 8, 22, 30), new_color = TRUE)
-dy.spectra <- function(sel_sp = sp$mt$meta[sp$acq,"end"], L = sp, new_color = FALSE){
+dy.spectra <- function(sel_sp = sp$mt$meta[sp$acq,"end"], L = sp, new_color = FALSE, name = FALSE){
   if(is.character(sel_sp) == TRUE) sel_sp <- as.numeric(sel_sp)
   if(length(sel_sp) > 60) print("Caution /!\ The number of spectra is too big. Select less spectra.")
   if(length(sel_sp) <=60){
@@ -642,9 +643,11 @@ dy.spectra <- function(sel_sp = sp$mt$meta[sp$acq,"end"], L = sp, new_color = FA
       dysp <- sp_sel %>% cbind(L$xMS,.) %>% as.data.frame()
       colnames(dysp)[2] <- colnames(L$MS)[sel_sp]
       titre <- colnames(L$MS)[sel_sp]
+      if(name != FALSE) titre <- name
     }else{
       dysp <- cbind(L$xMS,sp_sel) %>% as.data.frame()
       titre <- "sp_align"
+      if(name != FALSE) titre <- name
     }
     rownames(dysp) <- L$xMS
 

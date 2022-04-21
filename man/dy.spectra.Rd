@@ -4,7 +4,12 @@
 \alias{dy.spectra}
 \title{Plot spectra dynamic.}
 \usage{
-dy.spectra(sel_sp = sp$mt$meta[sp$acq, "end"], L = sp, new_color = FALSE)
+dy.spectra(
+  sel_sp = sp$mt$meta[sp$acq, "end"],
+  L = sp,
+  new_color = FALSE,
+  name = FALSE
+)
 }
 \arguments{
 \item{sel_sp}{a numeric vector with the selection of spectra.}
@@ -12,6 +17,8 @@ dy.spectra(sel_sp = sp$mt$meta[sp$acq, "end"], L = sp, new_color = FALSE)
 \item{L}{sp}
 
 \item{new_color}{Logical TRUE/FALSE}
+
+\item{name}{the title of plot and the name of the file.}
 }
 \value{
 a html plot
