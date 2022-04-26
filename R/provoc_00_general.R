@@ -304,7 +304,9 @@ empty.meta <- function(L = sp){
 #' # sp <- import.meta("meta_1")
 import.meta <- function(nm = "meta_empty", L = sp){
 
-  mt <- read.table(paste0(L$wd,"/",nm,".csv"), sep = ";", dec = ",", header = TRUE, row.names = 1, stringsAsFactors = FALSE)
+  mt <- read.table(paste0(L$wd,"/",nm,".csv"), sep = ";", dec = ",",
+                   header = TRUE, row.names = 1, stringsAsFactors = FALSE,
+                   comment.char = "", check.names = FALSE)
   colnames(mt)[1:11] <- c("ID", "nbr_MS", "start", "end", "used", "blank (ID)", "color",
                           "concentration","unit","acq_T0 (ID)", "delta_T (s)")
   mt <- as.matrix(mt)

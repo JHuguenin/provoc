@@ -1,6 +1,6 @@
 Package: provoc
 Title: analyze data of VOC by PTR-ToF-MS Vocus
-Version: 1.0.4.2
+Version: 1.0.4.03
 Authors@R: 
     person(given = "Joris",
            family = "Huguenin",
