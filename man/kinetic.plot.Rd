@@ -5,7 +5,7 @@
 \title{a unique function for monitoring the kinectic of COV.}
 \usage{
 kinetic.plot(
-  M_num = M.Z(c(59, 137)),
+  M_num = M.Z.max(c(59, 137)),
   each_mass = TRUE,
   group = FALSE,
   graph_type = "dy",
@@ -16,7 +16,7 @@ kinetic.plot(
 }
 \arguments{
 \item{M_num}{a vector with exact masses. It's possible to specifique these masses like
-a vector c(59.045, 137.121) or to be more evasive M.Z(c(59, 137)).}
+a vector c(59.045, 137.121) or to be more evasive M.Z.max(c(59, 137)).}
 
 \item{each_mass}{Logical TRUE of FALSE. If TRUE, a unique plot with all mass specifie in M_num.
 Else if FALSE, a plot is create for each mass.}

@@ -761,7 +761,7 @@ fx.spectra <- function(sel_sp = sp$mt$meta[sp$acq,"end"], pkm = 59, pkM = 205,
 #'  The graphs produced can group or not spectra belonging to the same class.
 #'  It is also possible to observe a single peak or a group.
 #' @param M_num a vector with exact masses. It's possible to specifique these masses like
-#' a vector c(59.045, 137.121) or to be more evasive M.Z(c(59, 137)).
+#' a vector c(59.045, 137.121) or to be more evasive M.Z.max(c(59, 137)).
 #' @param each_mass Logical TRUE of FALSE. If TRUE, a unique plot with all mass specifie in M_num.
 #' Else if FALSE, a plot is create for each mass.
 #' @param group FALSE or the name of a column of meta table. e.g. "grp1".
@@ -772,7 +772,7 @@ fx.spectra <- function(sel_sp = sp$mt$meta[sp$acq,"end"], pkm = 59, pkM = 205,
 #' Or "time" for combine kinetic of several acquisition.
 #' @return a plot
 #' @export
-kinetic.plot <- function(M_num = M.Z(c(59, 137)), each_mass = TRUE,
+kinetic.plot <- function(M_num = M.Z.max(c(59, 137)), each_mass = TRUE,
                          group = FALSE, graph_type = "dy", L = sp,
                          Y_exp = FALSE, time_format = "date"){
   # Mise en forme :
@@ -1385,7 +1385,6 @@ dizaine <- function(x){
 #' @param ma a number of mass
 #' @param L sp
 #' @return a numeric vector with all the exact mass closed to the mass number
-#' @return a numeric vector with all the exact mass closed to the mass number
 #' @export
 #' @examples
 #' # M.Z(c(59, 137))
@@ -1395,6 +1394,31 @@ M.Z <- function(ma,L=sp){
   fmr <- NULL
   for(maz in ma) fmr <- c(fmr, which((vec_pk < maz + 0.5)&(vec_pk > maz - 0.5)))
   return(vec_pk[fmr])
+}
+
+#' search the highest peak in accord to a mass number
+#' @param ma a number of mass
+#' @param L sp
+#' @return a numeric vector with all the exact mass closed to the mass number
+#' @export
+#' @examples
+#' # M.Z.max(c(59, 137))
+#' # 59.233 137.121
+M.Z.max <- function(ma, L = sp){
+  j <- 0
+  for(i in ma){
+    j <- j + 1
+    fmr <- match(M.Z(i),colnames(L$peaks))
+    if(length(fmr) == 0){
+      ma[j] <- NA
+    }else if(length(fmr)==1){
+      ma[j] <- colnames(sp$peaks)[fmr] %>% as.numeric()
+    }else{
+      mInd <- apply(sp$peaks[,fmr],2, max) %>% which.max()
+      ma[j] <- colnames(sp$peaks)[fmr[mInd]] %>% as.numeric()
+    }
+  }
+  return(ma)
 }
 
 #' return index of spectra for each acquistion

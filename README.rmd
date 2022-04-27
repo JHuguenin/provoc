@@ -156,7 +156,7 @@ kinetic.plot plots the evolution of the peaks.
 * `time_format` :  x axe with a time ("time") or with a date ("date").  
 
 ```{r kinetic plot, eval = FALSE}
-kinetic.plot(M_num = M.Z(c(59, 137)), each_mass = TRUE,
+kinetic.plot(M_num = M.Z.max(c(59, 137)), each_mass = TRUE,
                          group = "grp1", graph_type = "dy",
                          Y_exp = FALSE, time_format = "date")
 ```
