@@ -1427,7 +1427,7 @@ M.Z.max <- function(ma, L = sp){
 #' @return a numeric vector
 #' @export
 #' @examples
-#' # For just on acquisition :
+#' # For just one acquisition :
 #' # ind.acq(1,sp)
 #' # Or for more :
 #' # sapply(1:10,ind.acq,L=sp,simplify = TRUE)
@@ -1438,6 +1438,28 @@ ind.acq <- function(n_acq,L){
   for(i in n_acq) fmr <- c(fmr, mat_mt[i,1]:mat_mt[i,2])
   return(fmr)
 }
+
+#' return index of peaks
+#' @param ms the mass of the peak
+#' @param mode a character. Specifies whether the returned index is the exact peak (exact), the maximum peak (max) or all peaks (all) related to a unit mass.
+#' @param L sp
+#' @return a numeric vector
+#' @export
+#' @examples
+#' # For get the index for one peak :
+#' # ind.pk(137)
+#' # [1] 318
+#' # Or for more :
+#' # sapply(c(81,137,205),ind.pk)
+ind.pk <- function(ms, mode = c("max","exact","all"), L = sp){
+  ms <- as.numeric(ms)
+  if(mode[1] == "all") ind <- match(M.Z(ms),colnames(L$peaks))
+  if(mode[1] == "max") ind <- match(M.Z.max(ms),colnames(L$peaks))
+  if(mode[1] == "exact") ind <- match(ms,colnames(L$peaks))
+  if((mode[1] == "exact")&(is.na(ind[1])==TRUE)) print("Warning! There is no peak for this mass.")
+  return(ind)
+}
+
 
 #### which pack ####
 

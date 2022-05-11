@@ -1,6 +1,6 @@
 Package: provoc
 Title: analyze data of VOC by PTR-ToF-MS Vocus
-Version: 1.0.4.04
+Version: 1.0.4.05
 Authors@R: 
     person(given = "Joris",
            family = "Huguenin",
@@ -15,7 +15,7 @@ License: GPL-3
 Encoding: UTF-8
 LazyData: true
 Roxygen: list(markdown = TRUE)
-RoxygenNote: 7.1.1
+RoxygenNote: 7.1.2
 Imports:
     dygraphs (>= 1.1.0),
     baseline (>= 1.3.0),

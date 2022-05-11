@@ -18,7 +18,7 @@ a numeric vector
 return index of spectra for each acquistion
 }
 \examples{
-# For just on acquisition :
+# For just one acquisition :
 # ind.acq(1,sp)
 # Or for more :
 # sapply(1:10,ind.acq,L=sp,simplify = TRUE)
