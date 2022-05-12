@@ -248,7 +248,7 @@ mass.shift <- function(Li){
 nm.ls <- function(f_h5, wd){
   nm_h5 <- str_remove_all(dir(paste0(wd,"/h5"))[f_h5],"_20......_......")
   nm_h5 <- str_remove_all(nm_h5,"20......_......_")
-  nm_h5 <- str_remove_all(nm_h5,".h5")
+  nm_h5 <- str_remove_all(nm_h5,"\\.h5")
   if(length(nm_h5) != length(unique(nm_h5))){
     unm <- unique(nm_h5)
     for (i in 1:length(unm)){
@@ -439,7 +439,7 @@ import.h5 <- function(wdir = getwd(), pk_param = NULL, ctrl_peak = FALSE, baseli
   if(pk_param[[1]] == "low") pk_param <- list(method = "MAD", halfWindowSize = 10, SNR = 60, smooth = 6)
 
   # data importation ####
-  f_h5 <- dir(paste0(wdir,"/h5")) %>% grep(".h5",.)     # localise h5 files
+  f_h5 <- dir(paste0(wdir,"/h5")) %>% grep("\\.h5",.)     # localise h5 files
 
   length(citation.list) %>% sample(1) %>% citation.list[[.]] %>% cat()
   cat(" \n - - - - - - - - - - - - - - - \n")
@@ -1511,7 +1511,7 @@ export.info <- function(num = 1 , w_dir = w_d){
   nm_h5 <- str_remove_all(nm_h5,paste0(w_dir,"/h5/"))
   nm_h5 <- str_remove_all(nm_h5,"_20......_......")
   nm_h5 <- str_remove_all(nm_h5,"20......_......_")
-  nm_h5 <- str_remove_all(nm_h5,".h5")
+  nm_h5 <- str_remove_all(nm_h5,"\\.h5")
 
   # intensities extraction [ acquisition number * 160 000 pts]
   fmr <- dim(all_MS)
@@ -1577,7 +1577,7 @@ export.info <- function(num = 1 , w_dir = w_d){
 #' # The last spectra is corrompted. We should deleted the number 176.
 #'
 info.h5 <- function(w_d = getwd()){
-  all_fil <- grep(".h5", dir(paste0(w_d,"/h5")))
+  all_fil <- grep("\\.h5", dir(paste0(w_d,"/h5")))
 
   oldw <- getOption("warn")
   options(warn = -1)
