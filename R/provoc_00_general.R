@@ -334,9 +334,10 @@ import.meta <- function(nm = "meta_empty", L = sp){
 #' Read one file h5
 #' @param num_fil a number, e.g. 1
 #' @param ll the f_h5 obj
+#' @param sk skip, the number of non-imported spectra (starting with the first)
 #' @return a temporary sp
 #' @noRd
-read.h5 <- function(num_fil=1, ll = f_h5, wd = wdir){
+read.h5 <- function(num_fil=1, ll = f_h5, wd = wdir, sk = skip){
 
   # find the name of file
   name_h5 <- nm.ls(num_fil, wd)
@@ -378,13 +379,14 @@ read.h5 <- function(num_fil=1, ll = f_h5, wd = wdir){
   hprint(paste0(name_h5, " # ",which(num_fil == ll), "/", length(ll)))
 
   # return
+  rd <- (sk+1):ncol(MS)
   list("name" = name_h5,
        "xMS" = xMS,
-       "MS" = MS,
-       "date" = all_date,
-       "timing" = all_timing,
-       "nbr_sp" = ncol(MS),
-       "meta" = all_TPS2)
+       "MS" = MS[,rd],
+       "date" = all_date[rd],
+       "timing" = all_timing[rd],
+       "nbr_sp" = length(rd),
+       "meta" = all_TPS2[,rd])
 }
 
 #' Import all file.h5 in the h5 folder of working directory.
@@ -394,6 +396,7 @@ read.h5 <- function(num_fil=1, ll = f_h5, wd = wdir){
 #' @param pk_param a set of parameters for importation and detection peak
 #' @param ctrl_peak logical. An option for create a visual detect peak checking plot
 #' @param baseline_correction logical. If TRUE, the baseline is correted
+#' @param skip, numeric. The number of non-imported spectra (starting with the first)
 #' @return sp
 #' @export
 #' @examples
@@ -420,7 +423,9 @@ read.h5 <- function(num_fil=1, ll = f_h5, wd = wdir){
 #' # pk_param = list(method = "MAD", halfWindowSize = 2, SNR = 40, smooth = 6)
 #' # method = "MAD" or "SuperSmoother"
 #' # halfwindSize, SNR and smooth are integers
-import.h5 <- function(wdir = getwd(), pk_param = NULL, ctrl_peak = FALSE, baseline_correction = TRUE){
+import.h5 <- function(wdir = getwd(), pk_param = NULL, ctrl_peak = FALSE, baseline_correction = TRUE, skip = FALSE){
+  # wdir <- "D:/Cao Li/spring_2022"
+
   if(("Figures" %in% dir(wdir))==FALSE){
     dir.create(paste0(wdir,"/Figures"))
     dir.create(paste0(wdir,"/Figures/Control"))
@@ -443,7 +448,7 @@ import.h5 <- function(wdir = getwd(), pk_param = NULL, ctrl_peak = FALSE, baseli
 
   length(citation.list) %>% sample(1) %>% citation.list[[.]] %>% cat()
   cat(" \n - - - - - - - - - - - - - - - \n")
-  list_h5 <- lapply(f_h5, read.h5, ll = f_h5, wd = wdir) # num_fil = f_h5
+  list_h5 <- lapply(f_h5, read.h5, ll = f_h5, wd = wdir, sk = skip) # num_fil = f_h5
 
   # formating of sp list ####
   sp <- list()
@@ -1118,8 +1123,7 @@ dy.trans.ID <- function(li){
   return(li)
 }
 
-#### Control Peak ####
-
+#### Control Peak et metadata ####
 
 #' print a graph with MS and peaks detected.
 #'
@@ -1154,6 +1158,30 @@ peak.ctrl <- function(peak = 137, L = sp, suffixe = ""){
             main = paste("MS (green) vs peaks (orange) at",peak,"Da",suffixe),
             xlab = "m/z (Da)", ylab = "intensity (a.u.)")
     matplot(pk, t(L$peaks), pch = 16, col = alpha("darkorange3",0.5), add = TRUE)
+    dev.off()
+  }
+}
+
+#' print a lot of graph for a rapid overview of metadata kinetic
+#'
+#' @param L sp
+#' @param short a short selection of meta. FALSE for all graph
+#' @return a plot
+#' @export
+#' @examples
+#' # meta.ctrl()
+meta.ctrl <- function(L = sp, short = TRUE){
+  mtdt <- do.call(cbind, L$meta)
+  max_mtdt <- apply(mtdt,1,max)
+  mtdate <- do.call(c,L$Tinit$date)
+
+  sel <- c(1,9,15,55,75,76,77,78,79,87,88,91,95,96,128,163,167,171,182,205,213,214)
+  if(short == FALSE) sel <- which(max_mtdt != 0)
+
+  for (nm in sel){ # nm = 75
+    tiff(filename = paste0("Figures/Control/meta_data_",nm,"_",rownames(mtdt)[nm],".tiff"), width = 500, height = 300)
+    par(mar = c(2.5,2.5,2,0.5), mgp = c(4,1,0))
+    matplot(mtdate, mtdt[nm,], pch = 16, main = rownames(mtdt)[nm])
     dev.off()
   }
 }

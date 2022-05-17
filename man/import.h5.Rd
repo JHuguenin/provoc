@@ -8,7 +8,8 @@ import.h5(
   wdir = getwd(),
   pk_param = NULL,
   ctrl_peak = FALSE,
-  baseline_correction = TRUE
+  baseline_correction = TRUE,
+  skip = FALSE
 )
 }
 \arguments{
@@ -19,6 +20,8 @@ import.h5(
 \item{ctrl_peak}{logical. An option for create a visual detect peak checking plot}
 
 \item{baseline_correction}{logical. If TRUE, the baseline is correted}
+
+\item{skip, }{numeric. The number of non-imported spectra (starting with the first)}
 }
 \value{
 sp
