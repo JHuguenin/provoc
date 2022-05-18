@@ -170,28 +170,35 @@ re.calc.T.para <- function(L = sp){
 
   # pour le temps
   vec_T0 <- as.numeric(vec_T0)
+  vec_D <- as.numeric(vec_D)
   Ti <- L$Tinit$timing
   Tr <- L$Trecalc$timing
 
   # pour la date
-  # vec_D <- as.numeric(vec_D)
   Di <- L$Tinit$date
-  # Dr <- L$Trecalc$date
+
+
   # subtract(Di[[17]][1], Di[[1]][1]) %>% as.numeric()
 
-  for(i in 1:length(vec_T0)){
+  for(i in 1:length(vec_T0)){ # i=100
     # the time between acquisition at switch and Tref
     fmr <- difftime(Di[[i]][1], Di[[vec_T0[i]]][1], units = "secs")
-
+    fmr <- as.numeric(fmr)
     # apply the delta between T0 and Tref
     Tr[[i]] <- magrittr::add(Ti[[i]],fmr)
-
+    Tr[[i]] <- magrittr::add(Tr[[i]],vec_D[i])
     # # Dref become D0 for acquisition
     # Dr[[i]] <- subtract(Di[[i]],fmr)
     #
     # # apply the delta in seconde
     # Dr[[i]] <- add(Dr[[i]],vec_D[i])
   }
+
+  # x <- (0:19)*12
+  # y <- 7:12
+  # xx <- lapply(x,add, e2=y) %>% do.call(c,.)
+  # yy <- lapply(1:20, function(x) Tr[[x]]) %>% do.call(c,.)
+  # plot(xx, yy, pch = 16)
 
   # L$Trecalc$date <- Dr
   L$Trecalc$date <- L$Tinit$date
@@ -884,6 +891,8 @@ kinetic.plot <- function(M_num = M.Z.max(c(59, 137)), each_mass = TRUE,
     }
   }
 }
+
+
 #' a internal fonction. Use kinetic.plot()
 #' @param L sp
 #' @param titre a string of character
@@ -893,109 +902,111 @@ kinetic.plot <- function(M_num = M.Z.max(c(59, 137)), each_mass = TRUE,
 #' @return a plot
 #' @noRd
 fx.kinetic.plot <- function(L, titre, acq = ind_PK, MA = ma, VP = vp){
-  # index for peaks and acquisitions
-  ind_pk <- which(colnames(L$peaks) %in% MA)
-  ind_Sacq <- ind.acq(acq,L)
+    # index for peaks and acquisitions
+    ind_pk <- ind.pk(MA,"exact",L)
+    ind_Sacq <- ind.acq(acq,L)
 
-  # intensity
-  Ibn <- c(0, max(L$peaks[ind_Sacq, ind_pk]))
+    # intensity
+    Ibn <- c(0, max(L$peaks[ind_Sacq, ind_pk]))
 
-  # time
-  if(VP$time == "time"){
-    Tbn <- c(0,0)
-    for(i in acq) Tbn[2] <- max(Tbn[2], L$Trecalc$timing[[i]])
+    # time
+    if(VP$time == "time"){
+      Tbn <- c(0,0)
+      sapply(acq, function(X, Li) max(Li$Trecalc$timing[[X]]), Li = L) %>%
+        max() -> Tbn[2]
 
-    unit = "s"
-    Tdiv = 1
-    if(Tbn[2]>600){
-      unit = "min"
-      Tdiv = 60
-    }
-    if(Tbn[2]>36000){
-      unit = "h"
-      Tdiv = 3600
-    }
-    Tbn <- Tbn/Tdiv
-
-    Xlab <- paste0("Time (",unit,")")
-    List_abs <- lapply(L$Trecalc$timing, divide_by, e2 = Tdiv)
-  }
-
-  # or date
-  if(VP$time == "date"){
-    Cdate <- as.POSIXct(Sys.time(), format="%m/%d/%Y %H:%M:%S")
-    attr(Cdate, "tzone") <- "UTC"
-    for(i in acq) Cdate <- c(Cdate, L$Trecalc$date[[i]])
-    Cdate <- Cdate[-1]
-    Tbn <- range(Cdate)
-
-    Xlab <- paste0("Date")
-    List_abs <- L$Trecalc$date
-  }
-
-  pk_col <- L$mt$meta[,"color"]
-  if(VP$exp == FALSE) VP$exp <- ""
-  if(VP$exp == TRUE){
-    VP$exp <- "y"
-    Ibn[1] <- 10
-  }
-
-  tiff(file = titre, width = 1200, height = 600,units = "px")
-  par(mar = c(5,5,2,16),mgp = c(3.5,1.5,0),xpd = NA,
-      cex.main=2, cex.lab = 2, cex.axis = 2)
-
-  if(VP$time == "date"){
-    matplot(Tbn, Ibn, type = "l", col = "white", log = VP$exp,
-            xlab = Xlab, xaxt = "n", ylab = "Intensity (a.u.)")
-    axis.POSIXct(1, x =  Cdate)
-  }else{
-    matplot(Tbn, Ibn, type = "l", col = "white", log = VP$exp,
-            xlab = Xlab, ylab = "Intensity (a.u.)")
-  }
-
-  nq <- 0
-  for(i in acq){ # i=1
-    cl <- 15
-    nq <- nq + 1
-    for(j in ind_pk){ # j = ind_pk[2]
-      coor <- ind.acq(i,L)
-      xx <- unlist(List_abs)[coor]
-      if(length(coor)>1){
-        fmr <- length(coor) + (1-nq)*round(length(coor)/30)
-        matplot(xx, L$peaks[coor,j], type = "l", lwd = 2,
-                col = pk_col[i], add = TRUE)
-        matplot(xx, L$peaks[coor,j],
-                pch = cl, col = pk_col[i], cex = 2, add = TRUE)
-      }else{
-        matplot(xx, L$peaks[coor,j],
-                pch = cl, col = pk_col[i], add = TRUE)
+      unit = "s"
+      Tdiv = 1
+      if(Tbn[2]>600){
+        unit = "min"
+        Tdiv = 60
       }
-      cl <- cl + 1
+      if(Tbn[2]>36000){
+        unit = "h"
+        Tdiv = 3600
+      }
+      Tbn <- Tbn/Tdiv
+
+      Xlab <- paste0("Time (",unit,")")
+      List_abs <- lapply(L$Trecalc$timing, divide_by, e2 = Tdiv)
     }
+
+    # or date
+    if(VP$time == "date"){
+      Cdate <- as.POSIXct(Sys.time(), format="%m/%d/%Y %H:%M:%S")
+      attr(Cdate, "tzone") <- "UTC"
+      for(i in acq) Cdate <- c(Cdate, L$Trecalc$date[[i]])
+      Cdate <- Cdate[-1]
+      Tbn <- range(Cdate)
+
+      Xlab <- paste0("Date")
+      List_abs <- L$Trecalc$date
+    }
+
+    pk_col <- L$mt$meta[,"color"]
+
+    if(VP$exp == FALSE) VP$exp <- ""
+    if(VP$exp == TRUE){
+      VP$exp <- "y"
+      Ibn[1] <- 10
+    }
+
+    tiff(file = titre, width = 1200, height = 600,units = "px")
+    par(mar = c(5,5,2,16),mgp = c(3.5,1.5,0),xpd = NA,
+        cex.main=2, cex.lab = 2, cex.axis = 2)
+
+    if(VP$time == "date"){
+      matplot(Tbn, Ibn, type = "l", col = "white", log = VP$exp,
+              xlab = Xlab, xaxt = "n", ylab = "Intensity (a.u.)")
+      axis.POSIXct(1, x =  Cdate)
+    }else{
+      matplot(Tbn, Ibn, type = "l", col = "white", log = VP$exp,
+              xlab = Xlab, ylab = "Intensity (a.u.)")
+    }
+
+    nq <- 0
+    for(i in acq){ # i=1
+      cl <- 15
+      nq <- nq + 1
+      for(j in ind_pk){ # j = ind_pk[2]
+        coor <- ind.acq(i,L)
+        xx <- unlist(List_abs)[coor]
+        if(length(coor)>1){
+          fmr <- length(coor) + (1-nq)*round(length(coor)/30)
+          matplot(xx, L$peaks[coor,j], type = "l", lwd = 2,
+                  col = pk_col[i], add = TRUE)
+          matplot(xx, L$peaks[coor,j],
+                  pch = cl, col = pk_col[i], cex = 2, add = TRUE)
+        }else{
+          matplot(xx, L$peaks[coor,j],
+                  pch = cl, col = pk_col[i], add = TRUE)
+        }
+        cl <- cl + 1
+      }
+    }
+
+    if(length(acq) <= 10){
+      l.acq <- acq
+    }else{
+      fmr <- length(acq) %>% subtract(4)
+      l.acq <- acq[c(1:5, fmr:length(acq))]
+    }
+
+    if(length(MA)<= 10){
+      l.num <- MA
+    }else{
+      fmr <- length(MA) %>% subtract(4)
+      l.num <- MA[c(1:5, fmr:length(MA))]
+    }
+
+    legend("topright", bty = "n", cex = 1.5, xpd = NA, inset = c(-0.26,0),
+           legend = c("Sample(s) :", L$names[l.acq]," ","Masse(s) :", l.num),
+           lty = c(NA,rep(1,length(l.acq)), NA, NA, rep(NA,length(l.num))), lwd = 2,
+           pch = c(NA,rep(NA,length(l.acq)), NA, NA, 14 + seq(1,length(l.num))),
+           col = c(NA,pk_col, NA, NA, rep("black", length(l.num))))
+
+    dev.off()
   }
-
-  if(length(acq) <= 10){
-    l.acq <- acq
-  }else{
-    fmr <- length(acq) %>% subtract(4)
-    l.acq <- acq[c(1:5, fmr:length(acq))]
-  }
-
-  if(length(MA)<= 10){
-    l.num <- MA
-  }else{
-    fmr <- length(MA) %>% subtract(4)
-    l.num <- MA[c(1:5, fmr:length(MA))]
-  }
-
-  legend("topright", bty = "n", cex = 1.5, xpd = NA, inset = c(-0.26,0),
-         legend = c("Sample(s) :", L$names[l.acq]," ","Masse(s) :", l.num),
-         lty = c(NA,rep(1,length(l.acq)), NA, NA, rep(NA,length(l.num))), lwd = 2,
-         pch = c(NA,rep(NA,length(l.acq)), NA, NA, 14 + seq(1,length(l.num))),
-         col = c(NA,pk_col, NA, NA, rep("black", length(l.num))))
-
-  dev.off()
-}
 
 #' a internal fonction. Use kinetic.plot()
 #' @param L sp
