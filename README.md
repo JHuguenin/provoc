@@ -150,6 +150,17 @@ sp <- re.calc.T.para(sp)
 sp <- re.init.T.para(sp)
 ```
 
+Be careful. By default, the “time” option uses a relative T0 from the
+first spectrum of each acquisition and the “date” option uses the actual
+date and time of each spectrum. Using the acq\_T0 column with the “time”
+option allows different acquisitions to be sequenced using the T0 of the
+specified acquisition. Using the acq\_T0 column with the “date” option
+allows you to overlap acquisitions on the T0 of the specified
+acquisition.
+
+The delta\_T column is used to add the specified time (in seconds) to
+the acquisition.
+
 ## Make a plot
 
 With the following three functions, it is really easy to make graphs to
@@ -182,7 +193,7 @@ kinetic.plot plots the evolution of the peaks.
 -   `time_format` : x axe with a time (“time”) or with a date (“date”).
 
 ``` r
-kinetic.plot(M_num = M.Z(c(59, 137)), each_mass = TRUE,
+kinetic.plot(M_num = M.Z.max(c(59, 137)), each_mass = TRUE,
                          group = "grp1", graph_type = "dy",
                          Y_exp = FALSE, time_format = "date")
 ```
