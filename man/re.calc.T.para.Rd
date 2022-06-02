@@ -13,7 +13,17 @@ re.calc.T.para(L = sp)
 sp
 }
 \description{
-calculate the parameters of time
+Be careful. By default, the "time" option uses a relative T0 from the first
+spectrum of each acquisition and the "date" option uses the actual date and
+time of each spectrum.
+Using the acq_T0 column with the "time" option allows different acquisitions
+to be sequenced using the T0 of the specified acquisition. Using the acq_T0
+column with the "date" option allows you to overlap acquisitions on the T0
+of the specified acquisition.
+}
+\details{
+The delta_T column is used to add the specified time (in seconds) to the
+acquisition.
 }
 \examples{
 # The first time configuration :

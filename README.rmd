@@ -133,6 +133,10 @@ sp <- re.calc.T.para(sp)
 sp <- re.init.T.para(sp)
 ```
 
+Be careful. By default, the "time" option uses a relative T0 from the first spectrum of each acquisition and the "date" option uses the actual date and time of each spectrum. Using the acq_T0 column with the "time" option allows different acquisitions to be sequenced using the T0 of the specified acquisition. Using the acq_T0 column with the "date" option allows you to overlap acquisitions on the T0 of the specified acquisition.
+
+The delta_T column is used to add the specified time (in seconds) to the acquisition.
+
 ## Make a plot
 With the following three functions, it is really easy to make graphs to explore your data.
 

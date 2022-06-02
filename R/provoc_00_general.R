@@ -120,7 +120,7 @@ acq.time <- function(ls.t = ls_h5[[1]]){
 #'
 #' This function allows you to reset the parameters related to the acquisition
 #' times. This makes it possible to modify the T0 of an acquisition group. The
-#'  modifications must be made by the meta file
+#' modifications must be made by the meta file
 #' @export
 #' @param L sp
 #' @return sp
@@ -144,6 +144,16 @@ re.init.T.para <- function(L = sp){
 
 #' calculate the parameters of time
 #'
+#' Be careful. By default, the "time" option uses a relative T0 from the first
+#' spectrum of each acquisition and the "date" option uses the actual date and
+#' time of each spectrum.
+#' Using the acq_T0 column with the "time" option allows different acquisitions
+#' to be sequenced using the T0 of the specified acquisition. Using the acq_T0
+#' column with the "date" option allows you to overlap acquisitions on the T0
+#' of the specified acquisition.
+#'
+#' The delta_T column is used to add the specified time (in seconds) to the
+#' acquisition.
 #' @export
 #' @param L sp
 #' @return sp
@@ -176,6 +186,7 @@ re.calc.T.para <- function(L = sp){
 
   # pour la date
   Di <- L$Tinit$date
+  Dr <- L$Trecalc$date
 
 
   # subtract(Di[[17]][1], Di[[1]][1]) %>% as.numeric()
@@ -187,11 +198,11 @@ re.calc.T.para <- function(L = sp){
     # apply the delta between T0 and Tref
     Tr[[i]] <- magrittr::add(Ti[[i]],fmr)
     Tr[[i]] <- magrittr::add(Tr[[i]],vec_D[i])
-    # # Dref become D0 for acquisition
-    # Dr[[i]] <- subtract(Di[[i]],fmr)
-    #
-    # # apply the delta in seconde
-    # Dr[[i]] <- add(Dr[[i]],vec_D[i])
+
+    # Dref become D0 for acquisition
+    Dr[[i]] <- magrittr::subtract(Di[[i]],fmr)
+    # apply the delta in seconde
+    Dr[[i]] <- magrittr::add(Dr[[i]],vec_D[i])
   }
 
   # x <- (0:19)*12
@@ -200,8 +211,8 @@ re.calc.T.para <- function(L = sp){
   # yy <- lapply(1:20, function(x) Tr[[x]]) %>% do.call(c,.)
   # plot(xx, yy, pch = 16)
 
-  # L$Trecalc$date <- Dr
-  L$Trecalc$date <- L$Tinit$date
+  L$Trecalc$date <- Dr
+  # L$Trecalc$date <- L$Tinit$date
   L$Trecalc$timing <- Tr
   L <- wf.update("re.calc.T.para","sp", L)
   return(L)
