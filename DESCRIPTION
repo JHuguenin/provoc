@@ -1,18 +1,18 @@
 Package: provoc
 Title: analyze data of VOC by PTR-ToF-MS Vocus
-Version: 1.0.4.09
+Version: 1.0.4.10
 Authors@R: 
     person(given = "Joris",
            family = "Huguenin",
            role = c("aut", "cre"),
            email = "joris.huguenin@cefe.cnrs.fr")
-Packaged: 2022-06-01; huguenin
+Packaged: 2022-06-10; huguenin
 Description: The provoc package has been developed to support PTR-ToF-MS users
     in their analyses. It has been designed for a quick import of data into R
     and visualization of the first results in a few minutes. It automatically
     detects peaks and provides a matrix for further analysis. Some chemometrics
     functions are proposed. 
-Date/Publication: 2022-06-01
+Date/Publication: 2022-06-10
 License: GPL-3
 Encoding: UTF-8
 LazyData: true

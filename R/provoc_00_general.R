@@ -1125,8 +1125,9 @@ dy.mat.pk <- function(ac = acq, ipk = ind_pk, La = List_abs, Li = L, vp = VP){
 
   eq_acq <- which(Li$acq == ac)
 
-  if(vp$grp == FALSE) nid <- rownames(Li$mt$meta)[ac]
-  if(vp$grp != FALSE) nid <- Li$mt$meta[ac,vp$grp]
+  # if(vp$grp == FALSE) nid <- rownames(Li$mt$meta)[ac]
+  # if(vp$grp != FALSE) nid <- Li$mt$meta[ac,vp$grp]
+  nid <- rownames(Li$mt$meta)[ac]
 
   fmr <- rep(Li$mt$meta[ac,"ID"], length(La[[eq_acq]])) %>% as.numeric()
   fmr <- cbind(La[[eq_acq]],fmr, Li$peaks[ind.acq(ac,Li), ipk])
