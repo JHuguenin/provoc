@@ -8,6 +8,10 @@
 #' @name provoc
 #'
 #' @import dygraphs
+#' @import graphics
+#' @import grDevices
+#' @import utils
+#' @importFrom ALS als
 #' @importFrom baseline baseline.rollingBall
 #' @importFrom magrittr add
 #' @importFrom magrittr divide_by
@@ -30,6 +34,7 @@
 #' @importFrom rhdf5 h5write
 #' @importFrom rmarkdown render
 #' @importFrom scales alpha
+#' @importFrom stats approx
 #' @importFrom stats density
 #' @importFrom stats median
 #' @importFrom stringr str_flatten
@@ -1707,6 +1712,263 @@ delete.spectra.h5 <- function(ID_h5 = 1, num = 1, w_d = getwd()){
 
   # option re-init
   options(warn = oldw)
+}
+
+
+#### Provoc_06_MCR ####
+
+#' prepar a matrix for the preprocess step
+#' @param indM an integer
+#' @param selec a vector of selected peaks, or "all"
+#' @param s_T a charater string "date" or "time"
+#' @param L the list with spectra (sp)
+#'
+#' @return conform matrix organised in a list
+#' @noRd
+sort_mat <- function(indM = 14, selec = "all", s_T = "date", L){
+  if(selec[1] == "all") selec <- 1:ncol(L$peaks)
+  Xmat <- L$peaks[ind.acq(indM,L),selec] # list of select peak
+  if(s_T == "date") row.names(Xmat) <- unlist(L$Trecalc$date)[ind.acq(indM,L)] %>% round(0)
+  if(s_T == "time") row.names(Xmat) <- unlist(L$Trecalc$timing)[ind.acq(indM,L)] %>% round(0)
+  return(Xmat)
+}
+
+#' gestion of metadata organised in fonction of the specified group
+#' @param name_col a character string of the group 's column name
+#' @param L the list with spectra (sp)
+#'
+#' @return a list with some information
+#' @noRd
+gest.gr.mcr <- function(name_col = "samples", L = Li){
+  vec_ech <- factor(L$mt$meta[,name_col])
+  u_ech <- levels(vec_ech)
+  list_ech <- lapply(u_ech, grep, vec_ech)
+  levels(vec_ech) <- length(u_ech) %>% viridis(begin = 0.15, end = 0.85, option = "turbo")
+  return(list("name_gr" = name_col,
+              "nbr" = length(u_ech),
+              "grp" = u_ech,
+              "col" = as.character(vec_ech),
+              "lvl" = levels(vec_ech),
+              "list" = list_ech))
+}
+
+#' for print three differents figures relating to MCR
+#' @param col_mt a character string of the groupe
+#' @param nc an integer for the composant number
+#' @param Lg the list with spectra (sp)
+#' @param s_T the time format (date or time)
+#' @param res_als a list with the result of MCR
+#'
+#' @return some figures
+#' @noRd
+mcr.print <- function(col_mt = "samples", nc = ncMCR, Lg = Li, s_T = "date", res_als = tea.als){
+
+  # la gestion de la couleur
+  gr_mcr <- gest.gr.mcr(name_col = col_mt, Lg)
+
+  col_nc <- viridis(nc, begin = 0.2, option = "plasma")
+
+  # l'amplitude temporelle des datas :
+  if(s_T == "date") x_zoom <- lapply(res_als$CList, rownames) %>% range() %>% as.numeric() %>% as.POSIXct(origin = "1970-01-01", tz = "GMT")
+  if(s_T == "time") x_zoom <- lapply(res_als$CList, rownames) %>% unlist() %>% as.numeric() %>% range()
+
+  # la gestion du repertoire
+
+  fol <- paste0("MCR_",gr_mcr$name_gr,"_nc",nc)
+
+  if(fol %in% dir(paste0(Lg$wd,"/Figures/"))==FALSE){
+    dir.create(paste0(Lg$wd,"/Figures/",fol))
+  }
+
+  # les graphes
+
+  for(comp in 1:nc){ # comp = 1
+
+    ####
+    # figure des spectres purs
+    ####
+
+    tiff(filename = paste0("Figures/",fol,"/MCR_spectre_comp",comp,"_on_",nc,".tiff"), width = 1000, height = 580)
+    par(mar = c(5,5,5,0.1), cex.main=2, cex.lab = 2, cex.axis = 2, mgp = c(3.5,1.5,0))
+
+    xpMS <- rownames(res_als$S) %>% as.numeric() # le premier echantillon
+    matplot(xpMS, res_als$S[,comp], type = "l", col = col_nc[comp],
+            main = paste("MCR spectrum n", comp, "(model with",nc,"cp)"),xlim = c(50,210),
+            xlab = "Mass (m/z)", ylab = "Intensity (a.u.)")
+    dev.off()
+
+    # le range d'intensite
+    y_zoom <- lapply(res_als$CList, function(mat,cp) range(mat[-1,cp]), cp = comp) %>% range()
+
+    ####
+    # figure des concentrations purs
+    ####
+
+    tiff(filename = paste0("Figures/",fol,"/MCR_score_comp",comp,"_on_",nc,".tiff"), width = 1000, height = 580)
+    par(mar = c(5,5,5,0.1), cex.main=2, cex.lab = 2, cex.axis = 2, mgp = c(3.5,1.5,0))
+
+    xt <- as.numeric(rownames(res_als$CList[[1]])) %>% as.POSIXct(origin = "1970-01-01", tz = "GMT")
+
+    matplot(xt , res_als$CList[[1]][,comp], pch = 16, col = gr_mcr$lvl[1],
+            ylim = y_zoom, main = paste("MCR score n", comp, "(model with",nc,"cp)"), xlim = x_zoom,
+            xlab = "Time (s)", ylab = "Intensity (a.u.)")
+
+    for(i in 1:length(res_als$CList)){
+      xt <- as.numeric(rownames(res_als$CList[[i]]))
+      matplot(xt, res_als$CList[[i]][,comp], pch = 16, col = gr_mcr$col[i], add= TRUE)
+      matplot(xt , res_als$CList[[i]][,comp], lty = 1, type = "l", col = gr_mcr$col[i], add = TRUE)
+    }
+    legend("topright", legend = gr_mcr$grp, bty = "n", pch = 16, col = gr_mcr$lvl)
+    dev.off()
+  }
+
+  for(f in 1:gr_mcr$nbr){ # f = 1
+    # l'index de chaque voie :
+    indL <- unlist(gr_mcr$list[f])
+
+    # le range d'intensite par voie :
+    y_zoom <- lapply(indL, function(ii,mat) range(mat[[ii]][-1,]), mat = res_als$CList) %>% range()
+
+    # graphe des concentrations par voie :
+    tiff(filename = paste0("Figures/",fol,"/",gr_mcr$name_gr,"_",gr_mcr$grp[f],"_",nc,"_cp.tiff"), width = 1000, height = 580)
+    par(mar = c(5,5,5,0.1), cex.main=2, cex.lab = 2, cex.axis = 2, mgp = c(3.5,1.5,0))
+
+    # les dates :
+    xt <- as.numeric(rownames(res_als$CList[[indL[1]]])) %>% as.POSIXct(origin = "1970-01-01", tz = "GMT")
+
+    # premiere acquisition :
+    matplot(xt , res_als$CList[[indL[1]]], pch = 16, col = col_nc,
+            ylim = y_zoom, main = gr_mcr$grp[f], xlim = x_zoom,
+            xlab = "Time (min)", ylab = "Intensity (a.u.)")
+    matplot(xt ,res_als$CList[[indL[1]]], lty = 1, type = "l", col = col_nc, add = TRUE)
+
+    # les autres acquisitons :
+    for(i in indL[-1]){
+      xt <- as.numeric(rownames(res_als$CList[[i]]))
+      matplot(xt , res_als$CList[[i]], pch = 16, col = col_nc, add= TRUE)
+      matplot(xt , res_als$CList[[i]], lty = 1, type = "l", col = col_nc, add = TRUE)
+    }
+
+    legend("topright", legend = paste("Comp", 1:nc), bty = "n", pch = 16, col =  col_nc)
+    dev.off()
+  }
+}
+
+#' a fork of the function 'preprocess2' from the alsace package
+#' @param X a conform matrix
+#' @param dim1 a vector with the time points
+#' @param dim2 a vector with the MS peak
+#'
+#' @return a conformed matrix for ALS
+#' @noRd
+preprocess2 <- function (X = Xraw[[1]], dim1 = tpoints, dim2 = lambdas){
+  dX <- list(h = 1:nrow(X), v = 1:ncol(X))
+  X <- apply(X, 2, function(xx) stats::approx(dX$h, xx, dX$h)$y)
+  X <- apply(X, 1, function(xx) stats::approx(dX$v, xx, dX$v)$y) %>% t()
+  if (min(X) < 0) X <- X - min(X)
+  dimnames(X) <- list(dX$h, dX$v)
+  return(X)
+}
+
+#' a fork of the function 'opa' from the alsace package. "Finding the most
+#' dissimilar variables in a data matrix: the Orthogonal Projection Approach"
+#' @param x the tea object
+#' @param ncomp integer number of componant
+#'
+#' @return matrix with the result of the Orthogonal projection approach
+#' @noRd
+opa2 <- function (x = tea, ncomp = ncMCR){
+  if (is.list(x)) x <- do.call("rbind", x)
+  lambdas <- colnames(x)
+  x <- t(apply(x, 1, function(xx) xx/rep(sqrt(crossprod(xx)), length(xx))))
+  Xref <- matrix(0, ncomp, ncol(x))
+  huhn <- colMeans(x)
+  Xref[1, ] <- huhn/rep(sqrt(crossprod(huhn)), length(huhn))
+  for (i in 1:ncomp) {
+    Xs <- lapply(1:nrow(x), function(ii, xx, xref) rbind(xref, xx[ii, ]), x, Xref[1:(i - 1), ])
+    dissims <- sapply(Xs, function(xx) det(tcrossprod(xx)))
+    Xref[i, ] <- x[which.max(dissims), ]
+  }
+  colnames(Xref) <- lambdas
+  t(Xref)
+}
+
+#' a fork of the function 'doALS' from the alsace package.
+#' "Wrapper function for als, plus some support functions"
+#' @param Xl the output of preprocess2
+#' @param PureS the output of opa2
+#'
+#' @return an object with MCR ALS result
+#' @noRd
+doALS2 <- function (Xl = tea, PureS = tea.opa){
+
+  rd <- sapply(Xl,dim)[1,]
+  if(max(rd) != min(rd)){
+    dL <- abs(subtract(rd, max(rd)))
+    for(i in 1:length(rd)) Xl[[i]] <- rbind(Xl[[i]], matrix(0,dL[i],ncol(Xl[[i]])))
+  }
+
+  Cini <- lapply(Xl, function(xl) xl[, 1:ncol(PureS)])
+
+  result <- ALS::als(PsiList = Xl, CList = Cini, S = PureS, normS = 0.5,  optS1st = FALSE, )
+
+  if(max(rd) != min(rd)){
+    for(i in 1:length(rd)){
+      result$CList[[i]] <- result$CList[[i]][1:rd[i],]
+      result$resid[[i]] <- result$resid[[i]][1:rd[i],]
+      Xl[[i]] <- Xl[[i]][1:rd[i],]
+    }
+  }
+
+  colnames(result$S) <- paste("Component", 1:ncol(PureS))
+
+  for (i in 1:length(result$CList)) colnames(result$CList[[i]]) <- colnames(result$S)
+  predicted.values <- lapply(1:length(Xl), function(ii) Xl[[ii]] - result$resid[[ii]])
+
+  predvals2 <- sum(unlist(predicted.values)^2)
+
+  npoints <- sapply(rd,multiply_by,e2= nrow(result$S)) %>% sum()
+
+  result$summ.stats <- list(lof = 100 * sqrt(result$rss/predvals2),
+                            rms = sqrt(result$rss/npoints), r2 = 1 - result$rss/predvals2)
+  class(result) <- "ALS"
+  return(result)
+}
+
+#' mcr.voc is a large function to easily do an MCR analysis for the dataset.
+#' As output, you can retrieve figures and MCR results.
+#'
+#' @param ncMCR integer; number of componant of MCR
+#' @param grp a character string of the group 's column name
+#' @param pk_sel a vector of selected peaks, or "all"
+#' @param time_format a charater string "date" or "time"
+#' @param Li the list with spectra (sp)
+#'
+#' @return return figures and results
+#' @export
+#'
+#' @examples
+#' # mcr.result <- mcr.voc(ncMCR = 3, grp = "modality")
+mcr.voc <- function(ncMCR = 3, grp = NULL, pk_sel = "all", time_format = c("date","time"), Li = sp){
+  Xraw <- lapply(Li$acq, sort_mat, selec = pk_sel, s_T = time_format[1], L = Li) # liste des spectres en fct du temps trier pour les 4 chambres
+  tea <- lapply(Xraw, preprocess2) # preprocess2 is forked from alsace::preprocess
+  tea.opa <- opa2(tea, ncMCR) # opa2 is forked from alsace::opa
+  tea.als <- doALS2(tea, tea.opa) # this step can be long ; doALS2 is forked from alsace::doALS
+
+  Scomp <- tea.als$S # spectres pures
+  Ccomp <- do.call(rbind, tea.als$CList)  # concentration pures
+  rownames(Ccomp) <- sp$names_acq[sp$Sacq]
+
+  if(is.null(grp)){
+    Li$mt$meta <- cbind(Li$mt$meta,"no_grp" = rownames(Li$mt$meta))
+    grp <- "no_grp"
+  }
+
+  mcr.print(col_mt = grp, nc = ncMCR,
+            Lg = Li, s_T = time_format[1], res_als = tea.als)
+
+  return(list("Scomp" = Scomp, "Ccomp" = Ccomp,
+              "ncMCR" = ncMCR, "group" = grp))
 }
 
 #### End of Code ####
