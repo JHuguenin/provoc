@@ -5,6 +5,7 @@
 
 <!-- badges: start -->
 
+[![DOI](https://zenodo.org/badge/425788381.svg)](https://zenodo.org/badge/latestdoi/425788381)
 [![R-CMD-check](https://github.com/JHuguenin/provoc/workflows/R-CMD-check/badge.svg)](https://github.com/JHuguenin/provoc/actions)
 [![lifecycle](https://img.shields.io/badge/lifecycle-experimental-orange.svg)](https://www.tidyverse.org/lifecycle/#experimental)
 [![CRAN\_Status\_Badge](http://www.r-pkg.org/badges/version/provoc)](https://cran.r-project.org/package=provoc)
