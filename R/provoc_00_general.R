@@ -1654,7 +1654,7 @@ info.h5 <- function(w_d = getwd()){
   return(l_info)
 }
 
-#' delete a couple of specrta in a h5 file
+#' delete a couple of spectra in a h5 file
 #'
 #' sometimes, an experience is stopped brutaly. The last spectra is corrupted.
 #' The file can be reading by the import.h5() function. info.h5 and delete.spectra.h5()

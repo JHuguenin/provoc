@@ -1,1 +1,4 @@
 *.html
+.gitignore
+.Rproj.user
+.Rhistory

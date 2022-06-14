@@ -2,7 +2,7 @@
 % Please edit documentation in R/provoc_00_general.R
 \name{delete.spectra.h5}
 \alias{delete.spectra.h5}
-\title{delete a couple of specrta in a h5 file}
+\title{delete a couple of spectra in a h5 file}
 \usage{
 delete.spectra.h5(ID_h5 = 1, num = 1, w_d = getwd())
 }
