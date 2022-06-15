@@ -18,8 +18,6 @@ authors:
 - family-names: Huguenin
   given-names: Joris
   email: joris.huguenin@cefe.cnrs.fr
-- family-names: University of Montpellier
-  given-names: CEFE
 preferred-citation:
   type: software
   title: 'provoc: analyze data of VOC by PTR-ToF-MS Vocus'
@@ -27,7 +25,10 @@ preferred-citation:
   - family-names: Huguenin
     given-names: Joris
     email: joris.huguenin@cefe.cnrs.fr
+  - family-names: University of Montpellier
+    given-names: CEFE
   version: 1.0.5.00
+  doi: 10.5281/zenodo.6642830
   abstract: The provoc package has been developed to support PTR-ToF-MS users in their
     analyses. It has been designed for a quick import of data into R and visualization
     of the first results in a few minutes. It automatically detects peaks and provides
