@@ -4,7 +4,7 @@
 # -----------------------------------------------------------
 
 cff-version: 1.2.0
-message: 'To cite package "provoc" in publications use:'
+message: 'To cite package "provoc" in publications use: Joris Huguenin, University of Montpellier, CEFE (2022). provoc : analyze data of VOC by PTR-ToF-MS Vocus. R package version 1.0.5.01.'
 type: software
 license: GPL-3.0-only
 title: 'provoc: analyze data of VOC by PTR-ToF-MS Vocus'
@@ -17,19 +17,21 @@ authors:
 - family-names: Huguenin
   given-names: Joris
   affiliation: CEFE and University of Montpellier
+  organization: CEFE and University of Montpellier
   city: Montpellier
   country: France
   email: joris.huguenin@cefe.cnrs.fr
 preferred-citation:
-  type: manual
+  type: software
   title: 'provoc: analyze data of VOC by PTR-ToF-MS Vocus'
   authors:
   - family-names: Huguenin
     given-names: Joris
-    affiliation: CEFE and University of Montpellier
-    city: Montpellier
-    country: France
     email: joris.huguenin@cefe.cnrs.fr
+  affiliation: CEFE and University of Montpellier
+  organization: CEFE and University of Montpellier
+  city: Montpellier
+  country: France
   version: 1.0.5.00
   abstract: The provoc package has been developed to support PTR-ToF-MS users in their
     analyses. It has been designed for a quick import of data into R and visualization
@@ -39,19 +41,13 @@ preferred-citation:
   contact:
   - family-names: Huguenin
     given-names: Joris
-    affiliation: CEFE and, University of Montpellier
-    city: Montpellier
-    country: France
     email: joris.huguenin@cefe.cnrs.fr
   license: GPL-3.0-only
   year: '2022'
-date-released: '2022-06-10'
+date-released: '2022-06-15'
 contact:
 - family-names: Huguenin
   given-names: Joris
-  affiliation: CEFE and University of Montpellier
-  city: Montpellier
-  country: France
   email: joris.huguenin@cefe.cnrs.fr
 references:
 - type: software
