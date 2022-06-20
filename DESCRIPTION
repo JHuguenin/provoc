@@ -39,7 +39,7 @@ Imports:
     utils (>= 4.0.0),
     xts (>= 0.12.0)
 Remotes: 
-    grimbough/rhdf5,
+    grimbough/rhdf5
 Suggests: 
     testthat (>= 3.0.0)
 Config/testthat/edition: 3
