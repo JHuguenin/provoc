@@ -46,63 +46,6 @@
 #' @importFrom xts xts
 NULL
 
-#### Fonction inutile ####
-citation.list <- {list(
-  c("Il faut aller trop loin pour decouvrir les limites.", "Joris Huguenin"),
-  c("Dieu, aie pitie de nous, nous sommes a la merci des ingenieurs !", 'Dr.Malcom, Jurassic Park'),
-  c("Grab a brush and put on a little make-up.","System of a Down"),
-  c("The Sun Machine is Coming Down, and We're Gonna Have a Party.", "David Bowie"),
-  c("I'm just a poor boy, I need no sympathy.", "Queen"),
-  c("Au village, sans pretention, J'ai mauvaise reputation.","Georges Brassens"),
-  c("Debout les gars, reveillez-vous ! On va au bout du monde.","Huges Aufray"),
-  c("Tu dis qu'si les elections ca changeait vraiment la vie \n
-     Y'a un bout d'temps, mon colon, qu'voter ca s'rait interdit","Renaud"),
-  c("Ready or not, here I come, you can't hide. Gonna find you and make you want me.","The Fugees"),
-  c("Emancipate yourselves from mental slavery.","Bob Marley"),
-  c("Hey DJ met nous donc du Funk, que je danse le MIA. Je danse le MIA.", "IAM"),
-  c("Doo, doo, doo, doo, doo, doo, doo, doo.", "Lou Reed"),
-  c("L'obscurite ne peut pas chasser l'obscurite, seule la lumiere le peut. La haine ne peut pas chasser la haine, seul l'amour le peut.", "Martin Luther King"),
-  c("La vie, ce n'est pas d'attendre que les orages passent, c'est d'apprendre a danser sous la pluie.", "Seneque"),
-  c("Nos vies sont pleines de catastrophes qui n'ont jamais eu lieu.", "Auteur inconnu"),
-  c("S'il y a un probleme, il y a une solution. S'il n'y a pas de solution, alors ce n'est pas un probleme.", "Auteur inconnu"),
-  c("Si vous pouvez le rever, vous pouvez le faire.", "Walt Disney"),
-  c("Ils ne savaient pas que c'etait impossible, alors ils l'ont fait.", "Mark Twain"),
-  c("J'ai decide d'etre heureux parce que c'est bon pour la sante.", "Voltaire"),
-  c("Si vous pensez que l'aventure est dangereuse, essayez la routine, elle est mortelle.", "Paulo Coelho"),
-  c("Les gens les plus heureux n'ont pas tout ce qu'il y a de mieux. Ils font juste de leur mieux avec tout ce qu'ils ont.", "Auteur inconnu"),
-  c("Le veritable voyage ne consiste pas a chercher de nouveaux paysages, mais a avoir de nouveaux yeux.", "Marcel Proust"),
-  c("Avec trop on se perd. Avec moins on se trouve.", "Tchouang Tseu"),
-  c("N'aie pas peur d'avancer lentement. Aie peur de rester immobile.", "Proverbe chinois"),
-  c("Ne cherche pas le bonheur, cree-le.", "Auteur inconnu"),
-  c("Ne t'inquiete pas de l'echec. Inquiete-toi de ce que tu manques si tu n'essayes meme pas.", "Jack Canfield"),
-  c("Mieux vaut fait que parfait.", "Auteur inconnu"),
-  c("Dieu existe-elle ?", "Patrick Sebastien"),
-  c("Lorsqu'on regarde dans la bonne direction, il ne reste plus qu'a avancer.", "Proverbe bouddhiste"),
-  c("Un objectif bien defini est a moitie atteint.", "Abraham Lincoln"),
-  c("Quand on ose, on se trompe souvent. Quand on n'ose pas, on se trompe toujours.", "Romain Rolland"),
-  c("La vie c'est comme une bicyclette, il faut avancer pour ne pas perdre l'equilibre.", "Albert Einstein"),
-  c("Il y a deux facons de penser. L'une est de croire que les miracles n'existent pas. L'autre est de croire que chaque chose est un miracle.", "Albert Einstein"),
-  c("Fais de ta vie un reve et d'un reve une realite.", "Antoine de St Exupery"),
-  c("Il y a plus de courage que de talent dans la plupart des reussites.", "Felix Leclerc"),
-  c("Ce que nous sommes est le resultat de ce que nous avons pense.", "Bouddha"),
-  c("Les gagnants cherchent des moyens, les perdants des excuses.", "Franklin Roosevelt"),
-  c("Un voyage de mille lieues commence toujours par un premier pas.", "Lao Tseu"),
-  c("Tous les jours a tous points de vue, je vais de mieux en mieux.", "Emile Coue"),
-  c("Il faut toujours viser la lune car meme en cas d'echec on atterrit dans les etoiles.", "Oscar Wilde"),
-  c("Ce n'est pas parce que les choses sont difficiles que nous n'osons pas les faire, c'est parce que nous n'osons pas les faire qu'elles sont difficiles.", "Seneque"),
-  c("N'attendez pas d'etre heureux pour sourire. Souriez plutot afin d'etre heureux.", "Edward L. Kramer"),
-  c("Si tu fais ce que tu as toujours fait, tu obtiendras ce que tu as toujours obtenu.", "Tony Robbins"),
-  c("Redemarrage de l'evaluation d'une promesse interrompue.", "R poetic warning message"),
-  c("Error in chol.default(Winv) : le mineur dominant d'ordre 118 n'est pas defini positif", "rchemo error message"),
-  c("Je suis gentil avec tout le monde, celui qui dit le contraire je lui foutrai mon poing dans la gueule.", "Leo Ferre"),
-  c("Le desespoir est une forme superieure de critique.", "Leo Ferre"),
-  c("Les diplomes sont faits pour les gens qui n'ont pas de talent.","Pierre Desproges"),
-  c("Bal tragique a Colombey, un mort.","Hara Kiri"),
-  c("Si la matiere grise etait plus rose, le monde aurait moins les idees noires.","Pierre Dac"),
-  c("J'ai pris la decision de ne plus etre influencable. Qu'est-ce que vous en pensez ?","Patrick Sebastien"),
-  c("Est-il indispensable d'etre cultive quand il suffit de fermer sa gueule pour briller en societe ?","Pierre Desproges"),
-  c("On ne discute pas recettes de cuisine avec des anthropophages.", "Jean-Pierre Vernant"))}
-
 #### Provoc_01_gest_meta ####
 #### Gestion of time ####
 
@@ -277,7 +220,7 @@ nm.ls <- function(f_h5, wd){
     for (i in 1:length(unm)){
       inm <- which(nm_h5 == unm[i])
       if(length(inm) > 1){
-        eph <- log(length(inm),10) %>% floor() %>% add(1)
+        eph <- log(length(inm),10) %>% floor(.) %>% add(1)
         nm_h5[inm] <- paste0("000", 1:length(inm)) %>% str_sub(-eph) %>% paste(nm_h5[inm], ., sep = "_")
       }
     }
@@ -499,7 +442,7 @@ import.h5 <- function(wdir = getwd(), pk_param = NULL, ctrl_peak = FALSE, baseli
   # baseline correction ####
   if(baseline_correction == TRUE){
     hprint("Baseline correction")
-    WM <- diff(sp$xMS) %>% mean() %>% divide_by(0.2,.) %>% ceiling()
+    WM <- diff(sp$xMS) %>% mean() %>% divide_by(0.2,.) %>% ceiling(.)
     fmr <- baseline.rollingBall(sp$MS, wm = WM, ws = WM)
     sp$MS <- fmr$corrected
     remove(fmr)
@@ -967,7 +910,7 @@ fx.kinetic.plot <- function(L, titre, acq = ind_PK, MA = ma, VP = vp){
       Ibn[1] <- 10
     }
 
-    tiff(file = titre, width = 1200, height = 600,units = "px")
+    tiff(filename = titre, width = 1200, height = 600,units = "px")
     par(mar = c(5,5,2,16),mgp = c(3.5,1.5,0),xpd = NA,
         cex.main=2, cex.lab = 2, cex.axis = 2)
 
@@ -1249,7 +1192,7 @@ dim.lst <- function(list_n, elem = 1){
 #' @return a name
 #' @noRd
 prep.names <- function(L){
-  fmr <- log10(L$nbr_sp) %>% floor() %>% add(1)
+  fmr <- log10(L$nbr_sp) %>% floor(.) %>% add(1)
   rbind(fmr, L$names, L$nbr_sp)
 }
 
@@ -1433,8 +1376,8 @@ rep.mtu <- function(acq, col.nam, L){
 #' @return a number
 #' @noRd
 dizaine <- function(x){
-  eph <- log(x,10) %>% floor() %>% multiply_by(10)
-  divide_by(x,eph) %>% floor() %>% multiply_by(eph)
+  eph <- log(x,10) %>% floor(.) %>% multiply_by(10)
+  divide_by(x,eph) %>% floor(.) %>% multiply_by(eph)
 }
 
 #' search all peak in accord to a mass number
@@ -1695,7 +1638,7 @@ delete.spectra.h5 <- function(ID_h5 = 1, num = 1, w_d = getwd()){
 
   # modified H5
   fmr <- dim(H5$FullSpectra$TofData[,1,,])
-  d3_num <- divide_by(num, fmr[2]) %>% floor()
+  d3_num <- divide_by(num, fmr[2]) %>% floor(.)
   H5$FullSpectra$TofData <- H5$FullSpectra$TofData[,1,,-d3_num]
   dim(H5$FullSpectra$TofData) <- c(dim(H5$FullSpectra$TofData)[1],1,dim(H5$FullSpectra$TofData)[2:3])
   H5$TimingData$BufTimes <- H5$TimingData$BufTimes[,-d3_num]
@@ -1971,7 +1914,70 @@ mcr.voc <- function(ncMCR = 3, grp = NULL, pk_sel = "all", time_format = c("date
               "ncMCR" = ncMCR, "group" = grp))
 }
 
-#### End of Code ####
+#### End of programming ####
+
+#### Variables ####
+citation.list <- {list(
+  c("Il faut aller trop loin pour decouvrir les limites.", "Joris Huguenin"),
+  c("Dieu, aie pitie de nous, nous sommes a la merci des ingenieurs !", 'Dr.Malcom, Jurassic Park'),
+  c("Grab a brush and put on a little make-up.","System of a Down"),
+  c("The Sun Machine is Coming Down, and We're Gonna Have a Party.", "David Bowie"),
+  c("I'm just a poor boy, I need no sympathy.", "Queen"),
+  c("Au village, sans pretention, J'ai mauvaise reputation.","Georges Brassens"),
+  c("Debout les gars, reveillez-vous ! On va au bout du monde.","Huges Aufray"),
+  c("Tu dis qu'si les elections ca changeait vraiment la vie \n
+     Y'a un bout d'temps, mon colon, qu'voter ca s'rait interdit","Renaud"),
+  c("Ready or not, here I come, you can't hide. Gonna find you and make you want me.","The Fugees"),
+  c("Emancipate yourselves from mental slavery.","Bob Marley"),
+  c("Hey DJ met nous donc du Funk, que je danse le MIA. Je danse le MIA.", "IAM"),
+  c("Doo, doo, doo, doo, doo, doo, doo, doo.", "Lou Reed"),
+  c("L'obscurite ne peut pas chasser l'obscurite, seule la lumiere le peut. La haine ne peut pas chasser la haine, seul l'amour le peut.", "Martin Luther King"),
+  c("La vie, ce n'est pas d'attendre que les orages passent, c'est d'apprendre a danser sous la pluie.", "Seneque"),
+  c("Nos vies sont pleines de catastrophes qui n'ont jamais eu lieu.", "Auteur inconnu"),
+  c("S'il y a un probleme, il y a une solution. S'il n'y a pas de solution, alors ce n'est pas un probleme.", "Auteur inconnu"),
+  c("Si vous pouvez le rever, vous pouvez le faire.", "Walt Disney"),
+  c("Ils ne savaient pas que c'etait impossible, alors ils l'ont fait.", "Mark Twain"),
+  c("J'ai decide d'etre heureux parce que c'est bon pour la sante.", "Voltaire"),
+  c("Si vous pensez que l'aventure est dangereuse, essayez la routine, elle est mortelle.", "Paulo Coelho"),
+  c("Les gens les plus heureux n'ont pas tout ce qu'il y a de mieux. Ils font juste de leur mieux avec tout ce qu'ils ont.", "Auteur inconnu"),
+  c("Le veritable voyage ne consiste pas a chercher de nouveaux paysages, mais a avoir de nouveaux yeux.", "Marcel Proust"),
+  c("Avec trop on se perd. Avec moins on se trouve.", "Tchouang Tseu"),
+  c("N'aie pas peur d'avancer lentement. Aie peur de rester immobile.", "Proverbe chinois"),
+  c("Ne cherche pas le bonheur, cree-le.", "Auteur inconnu"),
+  c("Ne t'inquiete pas de l'echec. Inquiete-toi de ce que tu manques si tu n'essayes meme pas.", "Jack Canfield"),
+  c("Mieux vaut fait que parfait.", "Auteur inconnu"),
+  c("Dieu existe-elle ?", "Patrick Sebastien"),
+  c("Lorsqu'on regarde dans la bonne direction, il ne reste plus qu'a avancer.", "Proverbe bouddhiste"),
+  c("Un objectif bien defini est a moitie atteint.", "Abraham Lincoln"),
+  c("Quand on ose, on se trompe souvent. Quand on n'ose pas, on se trompe toujours.", "Romain Rolland"),
+  c("La vie c'est comme une bicyclette, il faut avancer pour ne pas perdre l'equilibre.", "Albert Einstein"),
+  c("Il y a deux facons de penser. L'une est de croire que les miracles n'existent pas. L'autre est de croire que chaque chose est un miracle.", "Albert Einstein"),
+  c("Fais de ta vie un reve et d'un reve une realite.", "Antoine de St Exupery"),
+  c("Il y a plus de courage que de talent dans la plupart des reussites.", "Felix Leclerc"),
+  c("Ce que nous sommes est le resultat de ce que nous avons pense.", "Bouddha"),
+  c("Les gagnants cherchent des moyens, les perdants des excuses.", "Franklin Roosevelt"),
+  c("Un voyage de mille lieues commence toujours par un premier pas.", "Lao Tseu"),
+  c("Tous les jours a tous points de vue, je vais de mieux en mieux.", "Emile Coue"),
+  c("Il faut toujours viser la lune car meme en cas d'echec on atterrit dans les etoiles.", "Oscar Wilde"),
+  c("Ce n'est pas parce que les choses sont difficiles que nous n'osons pas les faire, c'est parce que nous n'osons pas les faire qu'elles sont difficiles.", "Seneque"),
+  c("N'attendez pas d'etre heureux pour sourire. Souriez plutot afin d'etre heureux.", "Edward L. Kramer"),
+  c("Si tu fais ce que tu as toujours fait, tu obtiendras ce que tu as toujours obtenu.", "Tony Robbins"),
+  c("Redemarrage de l'evaluation d'une promesse interrompue.", "R poetic warning message"),
+  c("Error in chol.default(Winv) : le mineur dominant d'ordre 118 n'est pas defini positif", "rchemo error message"),
+  c("Je suis gentil avec tout le monde, celui qui dit le contraire je lui foutrai mon poing dans la gueule.", "Leo Ferre"),
+  c("Le desespoir est une forme superieure de critique.", "Leo Ferre"),
+  c("Les diplomes sont faits pour les gens qui n'ont pas de talent.","Pierre Desproges"),
+  c("Bal tragique a Colombey, un mort.","Hara Kiri"),
+  c("Si la matiere grise etait plus rose, le monde aurait moins les idees noires.","Pierre Dac"),
+  c("J'ai pris la decision de ne plus etre influencable. Qu'est-ce que vous en pensez ?","Patrick Sebastien"),
+  c("Est-il indispensable d'etre cultive quand il suffit de fermer sa gueule pour briller en societe ?","Pierre Desproges"),
+  c("On ne discute pas recettes de cuisine avec des anthropophages.", "Jean-Pierre Vernant"))}
+utils::globalVariables(c(".","L","Li","List_abs","VP","Xraw","acq","f_h5",
+                         "ind_PK","ind_pk","lambdas","ls_h5","ma","mt","ncMCR",
+                         "pk_max","skip","sp","tea","tea.als","tea.opa",
+                         "tpoints","vp","w_d","wdir"))
+
+#### Library ####
 
 # library(baseline)
 # library(dygraphs)
@@ -1983,3 +1989,6 @@ mcr.voc <- function(ncMCR = 3, grp = NULL, pk_sel = "all", time_format = c("date
 # library(stringr)
 # library(viridis)
 # library(xts)
+
+#### ... and justice for all ####
+
