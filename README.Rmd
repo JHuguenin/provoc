@@ -9,9 +9,10 @@ knitr::opts_chunk$set(
   collapse = TRUE,
   comment = "#>"
 )
+# knitr::opts_knit$set(root.dir = "C:/Users/huguenin/Documents/R/provoc")
 ```
 
-# provoc <a href='https://github.com/JHuguenin/provoc'><img src='inst/img/imgfile.png' align="right" height="138" /></a>
+# provoc <a href='https://github.com/JHuguenin/provoc'><img src='C:/Users/huguenin/Documents/R/provoc/inst/img/imgfile.png' align="right" height="138" /></a>
 
 <!-- badges: start -->
 [![DOI](https://zenodo.org/badge/425788381.svg)](https://zenodo.org/badge/latestdoi/425788381)
@@ -20,6 +21,7 @@ knitr::opts_chunk$set(
 [![CRAN_Status_Badge](http://www.r-pkg.org/badges/version/provoc)](https://cran.r-project.org/package=provoc)
 <!-- [![Coverage status](https://codecov.io/gh/mitchelloharawild/icons/branch/master/graph/badge.svg)](https://codecov.io/gh/mitchelloharawild/icon?branch=master) -->
 
+
 <!-- badges: end -->
 
 **P**erform a **R**apid **O**verview for **V**olatile **O**rganic **C**ompounds.  
@@ -27,6 +29,8 @@ knitr::opts_chunk$set(
 The `provoc` package has been developed to support PTR-ToF-MS users in their analyses. It has been designed for a quick import of data into R and visualization of the first results in a few minutes. It automatically detects peaks and provides a matrix for further analysis. Some chemometrics functions are proposed.  
 
 It is still a young and wild package that will appreciate feedback and new ideas for its development. Do not hesitate to contact the author to get or provide help.
+
+For cite this package : Joris Huguenin, UMR 5175 CEFE, CNRS, University of Montpellier. provoc: analyze data of VOC by PTR-ToF-MS Vocus. DOI : 10.5281/zenodo.6642830.
 
 # Installation
 

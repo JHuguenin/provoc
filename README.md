@@ -1,7 +1,7 @@
 
 <!-- README.md is generated from README.Rmd. Please edit that file -->
 
-# provoc <a href='https://github.com/JHuguenin/provoc'><img src='inst/img/imgfile.png' align="right" height="138" /></a>
+# provoc <a href='https://github.com/JHuguenin/provoc'><img src='C:/Users/huguenin/Documents/R/provoc/inst/img/imgfile.png' align="right" height="138" /></a>
 
 <!-- badges: start -->
 
@@ -25,6 +25,10 @@ Some chemometrics functions are proposed.
 It is still a young and wild package that will appreciate feedback and
 new ideas for its development. Do not hesitate to contact the author to
 get or provide help.
+
+For cite this package : Joris Huguenin, UMR 5175 CEFE, CNRS, University
+of Montpellier. provoc: analyze data of VOC by PTR-ToF-MS Vocus. DOI :
+10.5281/zenodo.6642830.
 
 # Installation
 
