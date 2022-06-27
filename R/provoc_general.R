@@ -11,8 +11,8 @@
 #' @import graphics
 #' @import grDevices
 #' @import utils
-#' @importFrom ALS als
 #' @importFrom baseline baseline.rollingBall
+#' @importFrom Iso ufit
 #' @importFrom magrittr add
 #' @importFrom magrittr divide_by
 #' @importFrom magrittr multiply_by
@@ -26,6 +26,7 @@
 #' @importFrom MALDIquant filterPeaks
 #' @importFrom MALDIquant intensityMatrix
 #' @importFrom MALDIquant smoothIntensity
+#' @importFrom nnls nnls
 #' @importFrom rhdf5 H5Fclose
 #' @importFrom rhdf5 H5Fopen
 #' @importFrom rhdf5 h5closeAll
@@ -35,8 +36,10 @@
 #' @importFrom rmarkdown render
 #' @importFrom scales alpha
 #' @importFrom stats approx
+#' @importFrom stats coef
 #' @importFrom stats density
 #' @importFrom stats median
+#' @importFrom stats stepfun
 #' @importFrom stringr str_flatten
 #' @importFrom stringr str_pad
 #' @importFrom stringr str_remove_all
@@ -1853,7 +1856,7 @@ doALS2 <- function (Xl = tea, PureS = tea.opa){
 
   Cini <- lapply(Xl, function(xl) xl[, 1:ncol(PureS)])
 
-  result <- ALS::als(PsiList = Xl, CList = Cini, S = PureS, normS = 0.5,  optS1st = FALSE, )
+  result <- als(PsiList = Xl, CList = Cini, S = PureS, normS = 0.5,  optS1st = FALSE, )
 
   if(max(rd) != min(rd)){
     for(i in 1:length(rd)){
@@ -1914,6 +1917,210 @@ mcr.voc <- function(ncMCR = 3, grp = NULL, pk_sel = "all", time_format = c("date
               "ncMCR" = ncMCR, "group" = grp))
 }
 
+#### Provoc_07_functions from others library ####
+
+
+#' als from ALS package
+#'
+#' @param CList  I don't know
+#' @param PsiList  I don't know
+#' @param S I don't know
+#' @param WList  I don't know
+#' @param thresh  I don't know
+#' @param maxiter  I don't know
+#' @param forcemaxiter  I don't know
+#' @param optS1st  I don't know
+#' @param x I don't know
+#' @param x2  I don't know
+#' @param baseline  I don't know
+#' @param fixed  I don't know
+#' @param uniC  I don't know
+#' @param uniS  I don't know
+#' @param nonnegC  I don't know
+#' @param nonnegS  I don't know
+#' @param normS  I don't know
+#' @param closureC  I don't know
+#'
+#' @return the result
+#' @noRd
+als <- function (CList, PsiList, S = matrix(), WList = list(), thresh = 0.001,
+                      maxiter = 100, forcemaxiter = FALSE, optS1st = TRUE, x = 1:nrow(CList[[1]]),
+                      x2 = 1:nrow(S), baseline = FALSE, fixed = vector("list",
+                                                                       length(PsiList)), uniC = FALSE, uniS = FALSE, nonnegC = TRUE,
+                      nonnegS = TRUE, normS = 0, closureC = list()){
+  RD <- 10^20
+  PsiAll <- do.call("rbind", PsiList)
+  resid <- vector("list", length(PsiList))
+  if (length(WList) == 0) {
+    WList <- vector("list", length(PsiList))
+    for (i in 1:length(PsiList)) WList[[i]] <- matrix(1,
+                                                      nrow(PsiList[[1]]), ncol(PsiList[[1]]))
+  }
+  W <- do.call("rbind", WList)
+  for (i in 1:length(PsiList)) resid[[i]] <- matrix(0, nrow(PsiList[[i]]),
+                                                    ncol(PsiList[[i]]))
+  for (j in 1:length(PsiList)) {
+    for (i in 1:nrow(PsiList[[j]])) {
+      resid[[j]][i, ] <- PsiList[[j]][i, ] - CList[[j]][i,
+      ] %*% t(S * WList[[j]][i, ])
+    }
+  }
+  initialrss <- oldrss <- sum(unlist(resid)^2)
+  cat("Initial RSS", initialrss, "\n")
+  iter <- 1
+  b <- if (optS1st)
+    1
+  else 0
+  oneMore <- FALSE
+  while (((RD > thresh || forcemaxiter) && maxiter >= iter) ||
+         oneMore) {
+    if (iter%%2 == b)
+      S <- getS(CList, PsiAll, S, W, baseline, uniS, nonnegS,
+                normS, x2)
+    else CList <- getCList(S, PsiList, CList, WList, resid,
+                           x, baseline, fixed, uniC, nonnegC, closureC)
+    for (j in 1:length(PsiList)) {
+      for (i in 1:nrow(PsiList[[j]])) {
+        resid[[j]][i, ] <- PsiList[[j]][i, ] - CList[[j]][i,
+        ] %*% t(S * WList[[j]][i, ])
+      }
+    }
+    rss <- sum(unlist(resid)^2)
+    RD <- ((oldrss - rss)/oldrss)
+    oldrss <- rss
+    typ <- if (iter%%2 == b)
+      "S"
+    else "C"
+    cat("Iteration (opt. ", typ, "): ", iter, ", RSS: ",
+        rss, ", RD: ", RD, "\n", sep = "")
+    iter <- iter + 1
+    oneMore <- (normS > S && (iter%%2 != b) && maxiter !=
+                  1) || (length(closureC) > 0 && (iter%%2 == b))
+  }
+  cat("Initial RSS / Final RSS =", initialrss, "/", rss, "=",
+      initialrss/rss, "\n")
+  return(list(CList = CList, S = S, rss = rss, resid = resid,
+              iter = iter))
+}
+
+#' getCList from ALS package
+#'
+#' @param S I don't know
+#' @param PsiList I don't know
+#' @param CList I don't know
+#' @param WList I don't know
+#' @param resid I don't know
+#' @param x I don't know
+#' @param baseline  I don't know
+#' @param fixed I don't know
+#' @param uni I don't know
+#' @param nonnegC I don't know
+#' @param closureC  I don't know
+#'
+#' @return the result
+#' @noRd
+getCList <- function (S, PsiList, CList, WList, resid, x, baseline, fixed, uni, nonnegC, closureC){
+  for (j in 1:length(PsiList)) {
+    S[which(is.nan(S))] <- 1
+    if (length(fixed[[j]]) > 0)
+      S <- S[, -fixed[[j]]]
+    for (i in 1:nrow(PsiList[[j]])) {
+      if (nonnegC)
+        cc <- try(nnls::nnls(A = S * WList[[j]][i, ],
+                             b = PsiList[[j]][i, ]))
+      else cc <- try(qr.coef(qr(S * WList[[j]][i, ]), PsiList[[j]][i,
+      ]))
+      if (class(cc) == "try-error")
+        sol <- rep(1, ncol(S))
+      else sol <- if (nonnegC)
+        coef(cc)
+      else cc
+      cc1 <- rep(NA, ncol(CList[[j]]))
+      if (length(fixed[[j]]) > 0)
+        cc1[fixed[[j]]] <- 0
+      cc1[is.na(cc1)] <- sol
+      CList[[j]][i, ] <- cc1
+    }
+  }
+  if (uni) {
+    for (j in 1:length(PsiList)) {
+      ncolel <- ncol(CList[[j]])
+      if (baseline)
+        ncolel <- ncolel - 1
+      for (i in 1:ncolel) {
+        CList[[j]][, i] <- Iso::ufit(y = CList[[j]][,
+                                                    i], x = x)$y
+      }
+    }
+  }
+  if (length(closureC) > 1) {
+    for (j in 1:length(PsiList)) for (i in 1:nrow(PsiList[[j]])) CList[[j]][i,
+    ] <- sum((CList[[j]][i, ] * closureC[[j]][i])/max(sum(CList[[j]][i,
+    ])))
+  }
+  CList
+}
+
+#' getS from ALS package
+#'
+#' @param CList  I don't know
+#' @param PsiAll  I don't know
+#' @param S  I don't know
+#' @param W  I don't know
+#' @param baseline  I don't know
+#' @param uni  I don't know
+#' @param nonnegS  I don't know
+#' @param normS  I don't know
+#' @param x2  I don't know
+#'
+#' @return the result
+#' @noRd
+getS <- function (CList, PsiAll, S, W, baseline, uni, nonnegS, normS, x2){
+  C <- do.call("rbind", CList)
+  C[which(is.nan(C))] <- 1
+  for (i in 1:ncol(PsiAll)) {
+    if (nonnegS)
+      s <- try(nnls::nnls(A = C * W[, i], b = PsiAll[,
+                                                     i]))
+    else s <- try(qr.coef(qr(C * W[, i]), PsiAll[, i]))
+    if (class(s) == "try-error")
+      S[i, ] <- rep(1, ncol(C))
+    else S[i, ] <- if (nonnegS)
+      coef(s)
+    else s
+  }
+  if (uni) {
+    ncolel <- ncol(C)
+    if (baseline)
+      ncolel <- ncolel - 1
+    for (i in 1:ncolel) S[i, ] <- Iso::ufit(y = S[i, ], x = x2)$y
+  }
+  if (normS > 0) {
+    if (normS == 1)
+      S <- normdat(S)
+    else {
+      for (i in 1:ncol(S)) {
+        nm <- sqrt(sum((S[, i])^2))
+        S[, i] <- S[, i]/nm
+      }
+    }
+  }
+  S
+}
+
+#' normdat from ALS package
+#'
+#' @param mat I don't know
+#'
+#' @return the result
+#' @noRd
+normdat <- function (mat){
+  if (!is.matrix(mat))
+    mat <- as.matrix(mat)
+  for (i in 1:ncol(mat)) mat[, i] <- mat[, i]/max(abs(mat[,i]))
+  mat
+}
+
 #### End of programming ####
 
 #### Variables ####
@@ -1972,6 +2179,7 @@ citation.list <- {list(
   c("J'ai pris la decision de ne plus etre influencable. Qu'est-ce que vous en pensez ?","Patrick Sebastien"),
   c("Est-il indispensable d'etre cultive quand il suffit de fermer sa gueule pour briller en societe ?","Pierre Desproges"),
   c("On ne discute pas recettes de cuisine avec des anthropophages.", "Jean-Pierre Vernant"))}
+
 utils::globalVariables(c(".","L","Li","List_abs","VP","Xraw","acq","f_h5",
                          "ind_PK","ind_pk","lambdas","ls_h5","ma","mt","ncMCR",
                          "pk_max","skip","sp","tea","tea.als","tea.opa",
