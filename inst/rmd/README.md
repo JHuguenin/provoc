@@ -204,6 +204,8 @@ sp <- import.meta("meta_1") # without '.csv'
 ```
 
 <img src="https://raw.githubusercontent.com/JHuguenin/provoc/master/inst/img/meta_empty.PNG" align="center" />
+<img src="https://raw.githubusercontent.com/JHuguenin/provoc/master/inst/img/meta_1.PNG" align="center" />
+<img src="https://raw.githubusercontent.com/JHuguenin/provoc/master/inst/img/meta_2.PNG" align="center" />
 
 All operations performed during the analysis are recorded. It is easy to
 save this trace. Afterwards, you can restart your workflow automatically
