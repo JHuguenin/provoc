@@ -173,6 +173,9 @@ meta\_2 or with more explicit names.
 If the import is stopped because of a corrupted file, use `info.h5()`
 and `delete.spectra.h5()` to correct this file.
 
+If your h5 files are differents, let me know and I can add an option for
+you.
+
 ### Optimize the importation
 
 If you want to improve the data import, there are three options to
@@ -199,13 +202,44 @@ consider :
 
 ## Preparation
 
+After the import, a csv file was created in the working directory. This
+file should look like this:
+
+<img src="https://raw.githubusercontent.com/JHuguenin/provoc/master/inst/img/meta_empty.PNG" align="center" />
+
+It is made to be easily opened and closed by excel in Windows10. If your
+default settings do not allow this facility, let me know and I can add
+an option for you.
+
+Once opened, you can edit the information inside to fill in different
+information such as the color or modality of your samples. Here, the
+example shows the first three cycles of a sequence with four samples,
+two with modality A, one with modality B and one blank. There are 12
+spectra per sample.  
+With the column acq\_T0, I indicate which acquisitions belong to each
+sample. This is useful for the “time” option when producing the graph.
+
+<img src="https://raw.githubusercontent.com/JHuguenin/provoc/master/inst/img/meta_1.PNG" align="center" />
+
 ``` r
 sp <- import.meta("meta_1") # without '.csv'
 ```
 
-<img src="https://raw.githubusercontent.com/JHuguenin/provoc/master/inst/img/meta_empty.PNG" align="center" />
-<img src="https://raw.githubusercontent.com/JHuguenin/provoc/master/inst/img/meta_1.PNG" align="center" />
+Then, to refine my analysis, I decided to superimpose the T0 of each
+sample to facilitate the comparison. For this, I removed 300 (600 and
+900) seconds because each sample is analyzed for 5 minutes. I also
+removed my sample 2 with the used column. Finally, I selected only the
+last 6 spectra (out of 12) by modifying the start column.
+
 <img src="https://raw.githubusercontent.com/JHuguenin/provoc/master/inst/img/meta_2.PNG" align="center" />
+
+``` r
+sp <- import.meta("meta_2")
+```
+
+To be able to switch from one graphical representation to another
+quickly, I created two files meta\_1.csv and meta\_2.csv that I import
+according to my needs.
 
 All operations performed during the analysis are recorded. It is easy to
 save this trace. Afterwards, you can restart your workflow automatically

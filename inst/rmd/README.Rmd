@@ -149,6 +149,9 @@ You can prepare several meta files. By activating or not the acquisitions, it is
 
 If the import is stopped because of a corrupted file, use `info.h5()` and `delete.spectra.h5()` to correct this file.
 
+If your h5 files are differents, let me know and I can add an option for you.
+ 
+ 
 ### Optimize the importation
 
 If you want to improve the data import, there are three options to consider :
@@ -178,7 +181,7 @@ Then, to refine my analysis, I decided to superimpose the T0 of each sample to f
 
 <img src="https://raw.githubusercontent.com/JHuguenin/provoc/master/inst/img/meta_2.PNG" align="center" />  
 
-```{r meta data, eval = FALSE}
+```{r meta data2, eval = FALSE}
 sp <- import.meta("meta_2")
 ```
 
