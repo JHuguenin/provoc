@@ -1,7 +1,7 @@
 
 <!-- README.md is generated from README.Rmd. Please edit that file -->
 
-# provoc <a href='https://github.com/JHuguenin/provoc'><img src='C:/Users/huguenin/Documents/R/provoc/inst/img/imgfile.png' align="right" height="138" /></a>
+# provoc <a href='https://github.com/JHuguenin/provoc'><img src="https://raw.githubusercontent.com/JHuguenin/provoc/master/inst/img/imgfile.png" align="right" height="138"/></a>
 
 <!-- badges: start -->
 
@@ -26,9 +26,11 @@ It is still a young and wild package that will appreciate feedback and
 new ideas for its development. Do not hesitate to contact the author to
 get or provide help.
 
-For cite this package : Joris Huguenin, UMR 5175 CEFE, CNRS, University
-of Montpellier. provoc: analyze data of VOC by PTR-ToF-MS Vocus. DOI :
-10.5281/zenodo.6642830.
+For cite this package :
+
+-   Joris Huguenin, UMR 5175 CEFE, CNRS, University of Montpellier.
+    provoc: analyze data of VOC by PTR-ToF-MS Vocus. DOI :
+    10.5281/zenodo.6642830.
 
 # Installation
 
@@ -41,15 +43,55 @@ remotes::install_github("jhuguenin/provoc")
 
 The package requires the update of many dependencies:
 
--   `dygraphs` (&gt;= 1.1.0)  
--   `magrittr` (&gt;= 2.0.0)  
--   `MALDIquant` (&gt;= 1.19.0)  
--   `rhdf5` (&gt;= 2.34.0)  
--   `rmarkdown` (&gt;= 2.11.0)  
--   `scales` (&gt;= 1.1.0)  
--   `stringr` (&gt;= 1.4.0)
--   `viridis` (&gt;= 0.6.0)  
--   `xts` (&gt;= 0.12.0)
+-   `baseline`(&gt;= 1.3.0)
+-   `dygraphs`(&gt;= 1.1.0)
+-   `graphics`(&gt;= 4.0.0)
+-   `grDevices`(&gt;= 4.0.0)
+-   `Iso`(&gt;= 0.0-18.1)
+-   `magrittr`(&gt;= 2.0.0)
+-   `MALDIquant`(&gt;= 1.19.0)
+-   `nnls`(&gt;= 1.4)
+-   `rhdf5`(&gt;= 2.34.0)
+-   `rmarkdown`(&gt;= 2.11.0)
+-   `scales`(&gt;= 1.1.0)
+-   `stats`(&gt;= 4.0.0)
+-   `stringr`(&gt;= 1.4.0)
+-   `viridis`(&gt;= 0.6.0)
+-   `usethis`(&gt;= 2.1.0)
+-   `utils`(&gt;= 4.0.0)
+-   `xts`(&gt;= 0.12.0)
+
+# Description of function
+
+## Principals functions
+
+-   **import.h5** for import you data. Easy.
+-   **import.meta** custom your analysis plans.
+-   **dy.spectra** & **fx.spectra** look at your dynamic of fixed
+    spectra.
+-   **kinetic.plot** look the kinetic of your VOCs.
+-   **mcr.voc** perform a MCR analysis on your data.
+
+## Secondary functions
+
+### Manage your data
+
+-   if you can’t import your files, look them with **info.h5**. After
+    that, delete a corrupted spectra with **delete.spectra.h5**.
+-   peek your meta data with **meta.ctrl** and the peak alignment with
+    **peak.ctrl**.
+-   manage the time of your data with **re.calc.T.para** or revert to
+    original data by **re.init.T.para**.
+-   create a new file “meta\_empty.csv” : **empty.meta**.
+
+### Find index or position
+
+-   **ind.acq** return index of spectra for each acquistion.
+-   **ind.pk** return index of peaks.
+-   **det.c** return the index more closed of a decimal number in the
+    numeric vector.
+-   **M.Z** search all peak in accord to a mass number
+-   **M.Z.max** search the highest peak in accord to a mass number
 
 # Usage
 
@@ -71,7 +113,7 @@ Each file is an `acquisition` with several `spectra`.
 ``` r
 # working directory
 wd <- "~/R/data_test/miscalenous" # without final "/"
-setwd(wd) # If you you don't work by project
+setwd(wd) # If you you don't work by project.
 
 # + wd/
 # |  \- h5/
@@ -80,7 +122,7 @@ setwd(wd) # If you you don't work by project
 # |     \- 02_file_PTR_ToF_MS.h5
 
 # import
-sp <- import.h5(wd)
+sp <- import.h5(wd) # or just sp <- import.h5() if you work by project. 
 ```
 
 The `import.h5()` function automatically creates a directory named
@@ -131,11 +173,37 @@ meta\_2 or with more explicit names.
 If the import is stopped because of a corrupted file, use `info.h5()`
 and `delete.spectra.h5()` to correct this file.
 
+### Optimize the importation
+
+If you want to improve the data import, there are three options to
+consider :
+
+-   First, a baseline correction step can be added with:
+    `baseline_correction = TRUE`. When the instrument receives a large
+    number of molecules with the same mass, the detector fluctuates
+    slightly which leaves a visible trace on the spectrogram. This
+    baseline correction is a time consuming but very effective step to
+    improve the analysis.  
+-   Then, the parameters for detecting and aligning the peaks can be
+    adjusted according to the experiment. The package proposes some
+    predefined parameters (see `pk_param`) but the user can modify these
+    parameters (mainly the size of the width of the peak at half height
+    “halfWindowSize” and the signal to noise ratio “SNR”). The quality
+    of these parameters can be visualized thanks to the `ctrl_peak`
+    argument.  
+-   Finally, the argument `skip = X` allows not to import the first X
+    spectra of each file. Typically, in a sequence with several
+    channels, the first spectra will always be polluted by the previous
+    channel. Not importing them saves RAM and computation time. It also
+    allows to import longer sequences in one go.
+
 ## Preparation
 
 ``` r
 sp <- import.meta("meta_1") # without '.csv'
 ```
+
+<img src="https://raw.githubusercontent.com/JHuguenin/provoc/master/inst/img/meta_empty.PNG" align="center" />
 
 All operations performed during the analysis are recorded. It is easy to
 save this trace. Afterwards, you can restart your workflow automatically
