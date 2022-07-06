@@ -67,7 +67,7 @@ The package requires the update of many dependencies:
 
 -   **import.h5** for import you data. Easy.
 -   **import.meta** custom your analysis plans.
--   **dy.spectra** & **fx.spectra** look at your dynamic of fixed
+-   **dy.spectra** & **fx.spectra** look at your dynamic or fixed
     spectra.
 -   **kinetic.plot** look the kinetic of your VOCs.
 -   **mcr.voc** perform a MCR analysis on your data.
@@ -290,8 +290,8 @@ fx.spectra(sel_sp = 1, pkm = 59, pkM = 150)
 
 kinetic.plot plots the evolution of the peaks.
 
--   `M_num` : Analyzed masses. M.Z(c(69, 205, 157)) or c(69.055,
-    205.158, 157.021).  
+-   `M_num` : Analyzed masses. M.Z(c(69, 205, 157)), M.Z.max(c(69, 205,
+    157)) or c(69.055, 205.158, 157.021).  
 -   `each_mass` : make a plot for each masse or not. Logical TRUE or
     FALSE.  
 -   `group` : the name of the meta column that categorizes the groups,
@@ -306,3 +306,48 @@ kinetic.plot(M_num = M.Z.max(c(59, 137)), each_mass = TRUE,
                          group = "grp1", graph_type = "dy",
                          Y_exp = FALSE, time_format = "date")
 ```
+
+## Make a MCR
+
+After performing a univariate analysis, Provoc allows a multivariate
+analysis using the MCR algorithm. This technique is detailed in the
+article : *Multivariate Curve Resolution (MCR). Solving the mixture
+analysis problem*(2014). Anna de Juan, Joaquim Jaumot and Roma Tauler.
+<https://doi.org/10.1039/C4AY00571F>
+
+Currently the constraints of the MCR are by default the same as those of
+the “alsace” package. They are consistent with an analysis of PTR-ToF-MS
+data. The function allows to set the number of components used for the
+RCM (ncMCR) and to specify a variable selection (pk\_sel). You can also
+specify a column from the meta\_xxx.csv file that you wish to use to
+group the spectra according to a modality.
+
+Arguments - `ncMCR` : (integer) number of componant of MCR. - `grp` : a
+character string of the group ’s column name. - `pk_sel` : a vector of
+selected peaks, or “all”. - `time_format` : a charater string “date” or
+“time”. - `Li` : the list with spectra (sp).
+
+``` r
+mcr.result <- mcr.voc(ncMCR = 3, grp = "modality", pk_sel = "all", 
+                      time_format = "date", Li = sp)
+```
+
+## Others functions
+
+The package includes several small utility functions.  
+Three of them deserve a clear explanation because they allow you to find
+the index of peaks or spectra. *ind.acq* allows you to find the spectra
+related to an acquisition. *For example, if you have taken a series of
+60 acquisitions, each with 8 spectra, ind.acq allows you to locate the 8
+spectra of the 42nd acquisition \[ ind.acq(42) \#329 330 331 332 333 334
+335 336\].* *ind.pk* works in the same way but on the position of the
+peaks. This function should not be confused with *M.Z* (or *M.Z.max*)
+which finds the peaks detected during the import.
+
+## And now …
+
+You have everything to work wit provoc. If you have specific needs,
+questions or remarks, you can contact me quickly at my email address
+(joris.name \[at\] cefe.cnrs.fr).
+
+See you

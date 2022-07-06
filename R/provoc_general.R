@@ -1881,6 +1881,8 @@ doALS2 <- function (Xl = tea, PureS = tea.opa){
   return(result)
 }
 
+#' Perform an algorithm for separate source
+#'
 #' mcr.voc is a large function to easily do an MCR analysis for the dataset.
 #' As output, you can retrieve figures and MCR results.
 #'
