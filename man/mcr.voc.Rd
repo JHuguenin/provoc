@@ -2,8 +2,7 @@
 % Please edit documentation in R/provoc_general.R
 \name{mcr.voc}
 \alias{mcr.voc}
-\title{mcr.voc is a large function to easily do an MCR analysis for the dataset.
-As output, you can retrieve figures and MCR results.}
+\title{Perform an algorithm for separate source}
 \usage{
 mcr.voc(
   ncMCR = 3,

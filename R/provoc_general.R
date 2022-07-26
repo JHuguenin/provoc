@@ -39,6 +39,7 @@
 #' @importFrom stats coef
 #' @importFrom stats density
 #' @importFrom stats median
+#' @importFrom stats smooth.spline
 #' @importFrom stats stepfun
 #' @importFrom stringr str_flatten
 #' @importFrom stringr str_pad
@@ -447,7 +448,7 @@ import.h5 <- function(wdir = getwd(), pk_param = NULL, ctrl_peak = FALSE, baseli
     hprint("Baseline correction")
     WM <- diff(sp$xMS) %>% mean() %>% divide_by(0.2,.) %>% ceiling(.)
     fmr <- baseline.rollingBall(sp$MS, wm = WM, ws = WM)
-    sp$MS <- fmr$corrected
+    sp$MS <- pmax(fmr$corrected,0)
     remove(fmr)
   }
 
@@ -1686,7 +1687,7 @@ sort_mat <- function(indM = 14, selec = "all", s_T = "date", L){
 #' @return a list with some information
 #' @noRd
 gest.gr.mcr <- function(name_col = "samples", L = Li){
-  vec_ech <- factor(L$mt$meta[,name_col])
+  vec_ech <- factor(L$mt$meta[L$acq,name_col])
   u_ech <- levels(vec_ech)
   list_ech <- lapply(u_ech, grep, vec_ech)
   levels(vec_ech) <- length(u_ech) %>% viridis(begin = 0.15, end = 0.85, option = "turbo")
@@ -1720,6 +1721,7 @@ mcr.print <- function(col_mt = "samples", nc = ncMCR, Lg = Li, s_T = "date", res
 
   # la gestion du repertoire
 
+  if("Figures" %in% dir(Lg$wd) ==FALSE) dir.create(paste0(Lg$wd,"/Figures"))
   fol <- paste0("MCR_",gr_mcr$name_gr,"_nc",nc)
 
   if(fol %in% dir(paste0(Lg$wd,"/Figures/"))==FALSE){
@@ -1734,7 +1736,7 @@ mcr.print <- function(col_mt = "samples", nc = ncMCR, Lg = Li, s_T = "date", res
     # figure des spectres purs
     ####
 
-    tiff(filename = paste0("Figures/",fol,"/MCR_spectre_comp",comp,"_on_",nc,".tiff"), width = 1000, height = 580)
+    tiff(filename = paste0(Lg$wd,"/Figures/",fol,"/MCR_spectre_comp",comp,"_on_",nc,".tiff"), width = 1000, height = 580)
     par(mar = c(5,5,5,0.1), cex.main=2, cex.lab = 2, cex.axis = 2, mgp = c(3.5,1.5,0))
 
     xpMS <- rownames(res_als$S) %>% as.numeric() # le premier echantillon
@@ -1750,7 +1752,7 @@ mcr.print <- function(col_mt = "samples", nc = ncMCR, Lg = Li, s_T = "date", res
     # figure des concentrations purs
     ####
 
-    tiff(filename = paste0("Figures/",fol,"/MCR_score_comp",comp,"_on_",nc,".tiff"), width = 1000, height = 580)
+    tiff(filename = paste0(Lg$wd,"/Figures/",fol,"/MCR_score_comp",comp,"_on_",nc,".tiff"), width = 1000, height = 580)
     par(mar = c(5,5,5,0.1), cex.main=2, cex.lab = 2, cex.axis = 2, mgp = c(3.5,1.5,0))
 
     xt <- as.numeric(rownames(res_als$CList[[1]])) %>% as.POSIXct(origin = "1970-01-01", tz = "GMT")
@@ -1802,19 +1804,24 @@ mcr.print <- function(col_mt = "samples", nc = ncMCR, Lg = Li, s_T = "date", res
 
 #' a fork of the function 'preprocess2' from the alsace package
 #' @param X a conform matrix
-#' @param dim1 a vector with the time points
-#' @param dim2 a vector with the MS peak
 #'
 #' @return a conformed matrix for ALS
 #' @noRd
-preprocess2 <- function (X = Xraw[[1]], dim1 = tpoints, dim2 = lambdas){
-  dX <- list(h = 1:nrow(X), v = 1:ncol(X))
+preprocess2 <- function (X = Xraw[[1]]){
+  dX <- list(h = as.numeric(rownames(X)), v = as.numeric(colnames(X)))
   X <- apply(X, 2, function(xx) stats::approx(dX$h, xx, dX$h)$y)
   X <- apply(X, 1, function(xx) stats::approx(dX$v, xx, dX$v)$y) %>% t()
+
+  # X <- t(apply(X, 1, function(xxx) smooth.spline(xxx)$y))
+  # X <- apply(X, 2, baseline.corr)
+
   if (min(X) < 0) X <- X - min(X)
+  # X <- maxI * X/max(X)
+
   dimnames(X) <- list(dX$h, dX$v)
   return(X)
 }
+
 
 #' a fork of the function 'opa' from the alsace package. "Finding the most
 #' dissimilar variables in a data matrix: the Orthogonal Projection Approach"
