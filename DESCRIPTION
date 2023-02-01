@@ -1,6 +1,6 @@
 Package: provoc
 Title: analyze data of VOC by PTR-ToF-MS Vocus
-Version: 1.0.5.06
+Version: 1.0.5.07
 DOI: 10.5281/zenodo.6642830
 Authors@R: 
     person(given = "Joris",
@@ -31,6 +31,7 @@ Imports:
     MALDIquant (>= 1.19.0),
     nnls (>= 1.4),
     rhdf5 (>= 2.34.0),
+    RColorBrewer (>= 1.1),
     rmarkdown (>= 2.11.0),
     scales (>= 1.1.0),
     stats (>= 4.0.0),

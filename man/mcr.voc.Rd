@@ -8,6 +8,7 @@ mcr.voc(
   ncMCR = 3,
   grp = NULL,
   pk_sel = "all",
+  prefixe = NULL,
   time_format = c("date", "time"),
   Li = sp
 )
@@ -18,6 +19,8 @@ mcr.voc(
 \item{grp}{a character string of the group 's column name}
 
 \item{pk_sel}{a vector of selected peaks, or "all"}
+
+\item{prefixe}{a character vector for add informations to the figures}
 
 \item{time_format}{a charater string "date" or "time"}
 

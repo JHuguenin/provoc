@@ -27,6 +27,7 @@
 #' @importFrom MALDIquant intensityMatrix
 #' @importFrom MALDIquant smoothIntensity
 #' @importFrom nnls nnls
+#' @importFrom RColorBrewer brewer.pal
 #' @importFrom rhdf5 H5Fclose
 #' @importFrom rhdf5 H5Fopen
 #' @importFrom rhdf5 h5closeAll
@@ -393,8 +394,8 @@ read.h5 <- function(num_fil=1, ll = f_h5, wd = wdir, sk = skip){
 #' # pk_param = list(method = "MAD", halfWindowSize = 2, SNR = 40, smooth = 6)
 #' # method = "MAD" or "SuperSmoother"
 #' # halfwindSize, SNR and smooth are integers
-import.h5 <- function(wdir = getwd(), pk_param = NULL, ctrl_peak = FALSE, baseline_correction = TRUE, skip = FALSE){
-  # wdir <- "D:/Cao Li/spring_2022"
+import.h5 <- function(wdir = getwd(), pk_param = NULL, ctrl_peak = FALSE,
+                      baseline_correction = TRUE, skip = FALSE){
 
   if(("Figures" %in% dir(wdir))==FALSE){
     dir.create(paste0(wdir,"/Figures"))
@@ -865,111 +866,111 @@ kinetic.plot <- function(M_num = M.Z.max(c(59, 137)), each_mass = TRUE,
 #' @return a plot
 #' @noRd
 fx.kinetic.plot <- function(L, titre, acq = ind_PK, MA = ma, VP = vp){
-    # index for peaks and acquisitions
-    ind_pk <- ind.pk(MA,"exact",L)
-    ind_Sacq <- ind.acq(acq,L)
+  # index for peaks and acquisitions
+  ind_pk <- ind.pk(MA,"exact",L)
+  ind_Sacq <- ind.acq(acq,L)
 
-    # intensity
-    Ibn <- c(0, max(L$peaks[ind_Sacq, ind_pk]))
+  # intensity
+  Ibn <- c(0, max(L$peaks[ind_Sacq, ind_pk]))
 
-    # time
-    if(VP$time == "time"){
-      Tbn <- c(0,0)
-      sapply(acq, function(X, Li) max(Li$Trecalc$timing[[X]]), Li = L) %>%
-        max() -> Tbn[2]
+  # time
+  if(VP$time == "time"){
+    Tbn <- c(0,0)
+    sapply(acq, function(X, Li) max(Li$Trecalc$timing[[X]]), Li = L) %>%
+      max() -> Tbn[2]
 
-      unit = "s"
-      Tdiv = 1
-      if(Tbn[2]>600){
-        unit = "min"
-        Tdiv = 60
-      }
-      if(Tbn[2]>36000){
-        unit = "h"
-        Tdiv = 3600
-      }
-      Tbn <- Tbn/Tdiv
-
-      Xlab <- paste0("Time (",unit,")")
-      List_abs <- lapply(L$Trecalc$timing, divide_by, e2 = Tdiv)
+    unit = "s"
+    Tdiv = 1
+    if(Tbn[2]>600){
+      unit = "min"
+      Tdiv = 60
     }
-
-    # or date
-    if(VP$time == "date"){
-      Cdate <- as.POSIXct(Sys.time(), format="%m/%d/%Y %H:%M:%S")
-      attr(Cdate, "tzone") <- "UTC"
-      for(i in acq) Cdate <- c(Cdate, L$Trecalc$date[[i]])
-      Cdate <- Cdate[-1]
-      Tbn <- range(Cdate)
-
-      Xlab <- paste0("Date")
-      List_abs <- L$Trecalc$date
+    if(Tbn[2]>36000){
+      unit = "h"
+      Tdiv = 3600
     }
+    Tbn <- Tbn/Tdiv
 
-    pk_col <- L$mt$meta[,"color"]
-
-    if(VP$exp == FALSE) VP$exp <- ""
-    if(VP$exp == TRUE){
-      VP$exp <- "y"
-      Ibn[1] <- 10
-    }
-
-    tiff(filename = titre, width = 1200, height = 600,units = "px")
-    par(mar = c(5,5,2,16),mgp = c(3.5,1.5,0),xpd = NA,
-        cex.main=2, cex.lab = 2, cex.axis = 2)
-
-    if(VP$time == "date"){
-      matplot(Tbn, Ibn, type = "l", col = "white", log = VP$exp,
-              xlab = Xlab, xaxt = "n", ylab = "Intensity (a.u.)")
-      axis.POSIXct(1, x =  Cdate)
-    }else{
-      matplot(Tbn, Ibn, type = "l", col = "white", log = VP$exp,
-              xlab = Xlab, ylab = "Intensity (a.u.)")
-    }
-
-    nq <- 0
-    for(i in acq){ # i=1
-      cl <- 15
-      nq <- nq + 1
-      for(j in ind_pk){ # j = ind_pk[2]
-        coor <- ind.acq(i,L)
-        xx <- unlist(List_abs)[coor]
-        if(length(coor)>1){
-          fmr <- length(coor) + (1-nq)*round(length(coor)/30)
-          matplot(xx, L$peaks[coor,j], type = "l", lwd = 2,
-                  col = pk_col[i], add = TRUE)
-          matplot(xx, L$peaks[coor,j],
-                  pch = cl, col = pk_col[i], cex = 2, add = TRUE)
-        }else{
-          matplot(xx, L$peaks[coor,j],
-                  pch = cl, col = pk_col[i], add = TRUE)
-        }
-        cl <- cl + 1
-      }
-    }
-
-    if(length(acq) <= 10){
-      l.acq <- acq
-    }else{
-      fmr <- length(acq) %>% subtract(4)
-      l.acq <- acq[c(1:5, fmr:length(acq))]
-    }
-
-    if(length(MA)<= 10){
-      l.num <- MA
-    }else{
-      fmr <- length(MA) %>% subtract(4)
-      l.num <- MA[c(1:5, fmr:length(MA))]
-    }
-
-    legend("topright", bty = "n", cex = 1.5, xpd = NA, inset = c(-0.26,0),
-           legend = c("Sample(s) :", L$names[l.acq]," ","Masse(s) :", l.num),
-           lty = c(NA,rep(1,length(l.acq)), NA, NA, rep(NA,length(l.num))), lwd = 2,
-           pch = c(NA,rep(NA,length(l.acq)), NA, NA, 14 + seq(1,length(l.num))),
-           col = c(NA,pk_col, NA, NA, rep("black", length(l.num))))
-
-    dev.off()
+    Xlab <- paste0("Time (",unit,")")
+    List_abs <- lapply(L$Trecalc$timing, divide_by, e2 = Tdiv)
   }
+
+  # or date
+  if(VP$time == "date"){
+    Cdate <- as.POSIXct(Sys.time(), format="%m/%d/%Y %H:%M:%S")
+    attr(Cdate, "tzone") <- "UTC"
+    for(i in acq) Cdate <- c(Cdate, L$Trecalc$date[[i]])
+    Cdate <- Cdate[-1]
+    Tbn <- range(Cdate)
+
+    Xlab <- paste0("Date")
+    List_abs <- L$Trecalc$date
+  }
+
+  pk_col <- L$mt$meta[,"color"]
+
+  if(VP$exp == FALSE) VP$exp <- ""
+  if(VP$exp == TRUE){
+    VP$exp <- "y"
+    Ibn[1] <- 10
+  }
+
+  tiff(filename = titre, width = 1200, height = 600,units = "px")
+  par(mar = c(5,5,2,16),mgp = c(3.5,1.5,0),xpd = NA,
+      cex.main=2, cex.lab = 2, cex.axis = 2)
+
+  if(VP$time == "date"){
+    matplot(Tbn, Ibn, type = "l", col = "white", log = VP$exp,
+            xlab = Xlab, xaxt = "n", ylab = "Intensity (a.u.)")
+    axis.POSIXct(1, x =  Cdate)
+  }else{
+    matplot(Tbn, Ibn, type = "l", col = "white", log = VP$exp,
+            xlab = Xlab, ylab = "Intensity (a.u.)")
+  }
+
+  nq <- 0
+  for(i in acq){ # i=1
+    cl <- 15
+    nq <- nq + 1
+    for(j in ind_pk){ # j = ind_pk[2]
+      coor <- ind.acq(i,L)
+      xx <- unlist(List_abs)[coor]
+      if(length(coor)>1){
+        fmr <- length(coor) + (1-nq)*round(length(coor)/30)
+        matplot(xx, L$peaks[coor,j], type = "l", lwd = 2,
+                col = pk_col[i], add = TRUE)
+        matplot(xx, L$peaks[coor,j],
+                pch = cl, col = pk_col[i], cex = 2, add = TRUE)
+      }else{
+        matplot(xx, L$peaks[coor,j],
+                pch = cl, col = pk_col[i], add = TRUE)
+      }
+      cl <- cl + 1
+    }
+  }
+
+  if(length(acq) <= 10){
+    l.acq <- acq
+  }else{
+    fmr <- length(acq) %>% subtract(4)
+    l.acq <- acq[c(1:5, fmr:length(acq))]
+  }
+
+  if(length(MA)<= 10){
+    l.num <- MA
+  }else{
+    fmr <- length(MA) %>% subtract(4)
+    l.num <- MA[c(1:5, fmr:length(MA))]
+  }
+
+  legend("topright", bty = "n", cex = 1.5, xpd = NA, inset = c(-0.26,0),
+         legend = c("Sample(s) :", L$names[l.acq]," ","Masse(s) :", l.num),
+         lty = c(NA,rep(1,length(l.acq)), NA, NA, rep(NA,length(l.num))), lwd = 2,
+         pch = c(NA,rep(NA,length(l.acq)), NA, NA, 14 + seq(1,length(l.num))),
+         col = c(NA,pk_col, NA, NA, rep("black", length(l.num))))
+
+  dev.off()
+}
 
 #' a internal fonction. Use kinetic.plot()
 #' @param L sp
@@ -1625,7 +1626,7 @@ delete.spectra.h5 <- function(ID_h5 = 1, num = 1, w_d = getwd()){
   options(warn = -1)
 
   # File opened
-  act_h5 <- dir(paste0(w_d,"/h5"))[ID_h5] %>% paste0(w_d,"/h5/",.) %>% H5Fopen()
+  act_h5 <- dir(paste0(w_d,"/h5"), pattern = ".h5")[ID_h5] %>% paste0(w_d,"/h5/",.) %>% H5Fopen()
 
   # copy in temporary object
   H5 <- list()
@@ -1705,15 +1706,18 @@ gest.gr.mcr <- function(name_col = "samples", L = Li){
 #' @param Lg the list with spectra (sp)
 #' @param s_T the time format (date or time)
 #' @param res_als a list with the result of MCR
+#' @param pref a character vector for add informations to the figures
 #'
 #' @return some figures
 #' @noRd
-mcr.print <- function(col_mt = "samples", nc = ncMCR, Lg = Li, s_T = "date", res_als = tea.als){
+mcr.print <- function(col_mt = "samples", nc = ncMCR, Lg = Li, s_T = "date",
+                      res_als = tea.als, pref = ""){
 
   # la gestion de la couleur
   gr_mcr <- gest.gr.mcr(name_col = col_mt, Lg)
 
-  col_nc <- viridis(nc, begin = 0.2, option = "plasma")
+  if(nc < 9) col_nc <- brewer.pal(n = nc, name = "Dark2")
+  if(nc > 8) col_nc <- viridis(n = nc, option = "viridis")
 
   # l'amplitude temporelle des datas :
   if(s_T == "date") x_zoom <- lapply(res_als$CList, rownames) %>% range() %>% as.numeric() %>% as.POSIXct(origin = "1970-01-01", tz = "GMT")
@@ -1722,7 +1726,7 @@ mcr.print <- function(col_mt = "samples", nc = ncMCR, Lg = Li, s_T = "date", res
   # la gestion du repertoire
 
   if("Figures" %in% dir(Lg$wd) ==FALSE) dir.create(paste0(Lg$wd,"/Figures"))
-  fol <- paste0("MCR_",gr_mcr$name_gr,"_nc",nc)
+  fol <- paste0("MCR_",pref,"_",gr_mcr$name_gr,"_nc",nc)
 
   if(fol %in% dir(paste0(Lg$wd,"/Figures/"))==FALSE){
     dir.create(paste0(Lg$wd,"/Figures/",fol))
@@ -1736,12 +1740,12 @@ mcr.print <- function(col_mt = "samples", nc = ncMCR, Lg = Li, s_T = "date", res
     # figure des spectres purs
     ####
 
-    tiff(filename = paste0(Lg$wd,"/Figures/",fol,"/MCR_spectre_comp",comp,"_on_",nc,".tiff"), width = 1000, height = 580)
+    tiff(filename = paste0(Lg$wd,"/Figures/",fol,"/",pref,"_MCR_spectre_comp",comp,"_on_",nc,".tiff"), width = 1000, height = 580)
     par(mar = c(5,5,5,0.1), cex.main=2, cex.lab = 2, cex.axis = 2, mgp = c(3.5,1.5,0))
 
     xpMS <- rownames(res_als$S) %>% as.numeric() # le premier echantillon
-    matplot(xpMS, res_als$S[,comp], type = "l", col = col_nc[comp],
-            main = paste("MCR spectrum n", comp, "(model with",nc,"cp)"),xlim = c(50,210),
+    matplot(xpMS, res_als$S[,comp], type = "l", col = col_nc[comp], lwd = 2,
+            main = paste(pref,"MCR spectrum n", comp, "(model with",nc,"cp)"),
             xlab = "Mass (m/z)", ylab = "Intensity (a.u.)")
     dev.off()
 
@@ -1752,13 +1756,13 @@ mcr.print <- function(col_mt = "samples", nc = ncMCR, Lg = Li, s_T = "date", res
     # figure des concentrations purs
     ####
 
-    tiff(filename = paste0(Lg$wd,"/Figures/",fol,"/MCR_score_comp",comp,"_on_",nc,".tiff"), width = 1000, height = 580)
+    tiff(filename = paste0(Lg$wd,"/Figures/",fol,"/",pref,"_MCR_score_comp",comp,"_on_",nc,".tiff"), width = 1000, height = 580)
     par(mar = c(5,5,5,0.1), cex.main=2, cex.lab = 2, cex.axis = 2, mgp = c(3.5,1.5,0))
 
     xt <- as.numeric(rownames(res_als$CList[[1]])) %>% as.POSIXct(origin = "1970-01-01", tz = "GMT")
 
     matplot(xt , res_als$CList[[1]][,comp], pch = 16, col = gr_mcr$lvl[1],
-            ylim = y_zoom, main = paste("MCR score n", comp, "(model with",nc,"cp)"), xlim = x_zoom,
+            ylim = y_zoom, main = paste(pref,"MCR score n", comp, "(model with",nc,"cp)"), xlim = x_zoom,
             xlab = "Time (s)", ylab = "Intensity (a.u.)")
 
     for(i in 1:length(res_als$CList)){
@@ -1778,7 +1782,7 @@ mcr.print <- function(col_mt = "samples", nc = ncMCR, Lg = Li, s_T = "date", res
     y_zoom <- lapply(indL, function(ii,mat) range(mat[[ii]][-1,]), mat = res_als$CList) %>% range()
 
     # graphe des concentrations par voie :
-    tiff(filename = paste0("Figures/",fol,"/",gr_mcr$name_gr,"_",gr_mcr$grp[f],"_",nc,"_cp.tiff"), width = 1000, height = 580)
+    tiff(filename = paste0("Figures/",fol,"/",pref,"_",gr_mcr$name_gr,"_",gr_mcr$grp[f],"_",nc,"_cp.tiff"), width = 1000, height = 580)
     par(mar = c(5,5,5,0.1), cex.main=2, cex.lab = 2, cex.axis = 2, mgp = c(3.5,1.5,0))
 
     # les dates :
@@ -1786,7 +1790,7 @@ mcr.print <- function(col_mt = "samples", nc = ncMCR, Lg = Li, s_T = "date", res
 
     # premiere acquisition :
     matplot(xt , res_als$CList[[indL[1]]], pch = 16, col = col_nc,
-            ylim = y_zoom, main = gr_mcr$grp[f], xlim = x_zoom,
+            ylim = y_zoom, main = paste(pref,gr_mcr$grp[f]), xlim = x_zoom,
             xlab = "Time (min)", ylab = "Intensity (a.u.)")
     matplot(xt ,res_als$CList[[indL[1]]], lty = 1, type = "l", col = col_nc, add = TRUE)
 
@@ -1896,6 +1900,7 @@ doALS2 <- function (Xl = tea, PureS = tea.opa){
 #' @param ncMCR integer; number of componant of MCR
 #' @param grp a character string of the group 's column name
 #' @param pk_sel a vector of selected peaks, or "all"
+#' @param prefixe a character vector for add informations to the figures
 #' @param time_format a charater string "date" or "time"
 #' @param Li the list with spectra (sp)
 #'
@@ -1904,7 +1909,9 @@ doALS2 <- function (Xl = tea, PureS = tea.opa){
 #'
 #' @examples
 #' # mcr.result <- mcr.voc(ncMCR = 3, grp = "modality")
-mcr.voc <- function(ncMCR = 3, grp = NULL, pk_sel = "all", time_format = c("date","time"), Li = sp){
+mcr.voc <- function(ncMCR = 3, grp = NULL, pk_sel = "all", prefixe = NULL,
+                    time_format = c("date","time"), Li = sp){
+
   Xraw <- lapply(Li$acq, sort_mat, selec = pk_sel, s_T = time_format[1], L = Li) # liste des spectres en fct du temps trier pour les 4 chambres
   tea <- lapply(Xraw, preprocess2) # preprocess2 is forked from alsace::preprocess
   tea.opa <- opa2(tea, ncMCR) # opa2 is forked from alsace::opa
@@ -1912,14 +1919,16 @@ mcr.voc <- function(ncMCR = 3, grp = NULL, pk_sel = "all", time_format = c("date
 
   Scomp <- tea.als$S # spectres pures
   Ccomp <- do.call(rbind, tea.als$CList)  # concentration pures
-  rownames(Ccomp) <- sp$names_acq[sp$Sacq]
+  rownames(Ccomp) <- Li$names_acq[Li$Sacq]
 
   if(is.null(grp)){
     Li$mt$meta <- cbind(Li$mt$meta,"no_grp" = rownames(Li$mt$meta))
     grp <- "no_grp"
   }
 
-  mcr.print(col_mt = grp, nc = ncMCR,
+  if(is.null(prefixe)) prefixe <- ""
+
+  mcr.print(col_mt = grp, nc = ncMCR, pref = prefixe,
             Lg = Li, s_T = time_format[1], res_als = tea.als)
 
   return(list("Scomp" = Scomp, "Ccomp" = Ccomp,
@@ -1953,10 +1962,10 @@ mcr.voc <- function(ncMCR = 3, grp = NULL, pk_sel = "all", time_format = c("date
 #' @return the result
 #' @noRd
 als <- function (CList, PsiList, S = matrix(), WList = list(), thresh = 0.001,
-                      maxiter = 100, forcemaxiter = FALSE, optS1st = TRUE, x = 1:nrow(CList[[1]]),
-                      x2 = 1:nrow(S), baseline = FALSE, fixed = vector("list",
-                                                                       length(PsiList)), uniC = FALSE, uniS = FALSE, nonnegC = TRUE,
-                      nonnegS = TRUE, normS = 0, closureC = list()){
+                 maxiter = 100, forcemaxiter = FALSE, optS1st = TRUE, x = 1:nrow(CList[[1]]),
+                 x2 = 1:nrow(S), baseline = FALSE, fixed = vector("list",
+                                                                  length(PsiList)), uniC = FALSE, uniS = FALSE, nonnegC = TRUE,
+                 nonnegS = TRUE, normS = 0, closureC = list()){
   RD <- 10^20
   PsiAll <- do.call("rbind", PsiList)
   resid <- vector("list", length(PsiList))
@@ -2195,7 +2204,7 @@ utils::globalVariables(c(".","L","Li","List_abs","VP","Xraw","acq","f_h5",
                          "tpoints","vp","w_d","wdir"))
 
 #### Library ####
-
+#
 # library(baseline)
 # library(dygraphs)
 # library(magrittr)
