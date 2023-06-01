@@ -135,34 +135,24 @@ re.calc.T.para <- function(L = sp){
   vec_T0 <- as.numeric(vec_T0)
   vec_D <- as.numeric(vec_D)
   Ti <- L$Tinit$timing
-  Tr <- L$Trecalc$timing
+  Tr <- L$Tinit$timing
 
   # pour la date
   Di <- L$Tinit$date
-  Dr <- L$Trecalc$date
+  Dr <- L$Tinit$date
 
-
-  # subtract(Di[[17]][1], Di[[1]][1]) %>% as.numeric()
-
-  for(i in 1:length(vec_T0)){ # i=100
+  for(i in 1:length(vec_T0)){ # i=100  i=51
     # the time between acquisition at switch and Tref
-    fmr <- difftime(Di[[i]][1], Di[[vec_T0[i]]][1], units = "secs")
+    fmr <- difftime(Di[[i]][1], Di[[vec_T0[i]]][1], units = "secs") # difference (Tinit date) - (Tinit date T0)
     fmr <- as.numeric(fmr)
     # apply the delta between T0 and Tref
-    Tr[[i]] <- magrittr::add(Ti[[i]],fmr)
-    Tr[[i]] <- magrittr::add(Tr[[i]],vec_D[i])
+    Tr[[i]] <- magrittr::add(Ti[[i]],fmr) %>% round(2)
 
     # Dref become D0 for acquisition
     Dr[[i]] <- magrittr::subtract(Di[[i]],fmr)
     # apply the delta in seconde
     Dr[[i]] <- magrittr::add(Dr[[i]],vec_D[i])
   }
-
-  # x <- (0:19)*12
-  # y <- 7:12
-  # xx <- lapply(x,add, e2=y) %>% do.call(c,.)
-  # yy <- lapply(1:20, function(x) Tr[[x]]) %>% do.call(c,.)
-  # plot(xx, yy, pch = 16)
 
   L$Trecalc$date <- Dr
   # L$Trecalc$date <- L$Tinit$date
@@ -1716,7 +1706,7 @@ mcr.print <- function(col_mt = "samples", nc = ncMCR, Lg = Li, s_T = "date",
   # la gestion de la couleur
   gr_mcr <- gest.gr.mcr(name_col = col_mt, Lg)
 
-  if(nc < 9) col_nc <- brewer.pal(n = nc, name = "Dark2")
+  if(nc < 9) col_nc <- RColorBrewer::brewer.pal(n = nc, name = "Dark2")
   if(nc > 8) col_nc <- viridis(n = nc, option = "viridis")
 
   # l'amplitude temporelle des datas :
