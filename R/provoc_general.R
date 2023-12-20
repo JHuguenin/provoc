@@ -1526,6 +1526,7 @@ export.info <- function(num = 1 , w_dir = w_d){
   rownames(mat) <- c("mean", " median", "max")
 
   fmr <- dim(all_MS)[2] %>% dizaine() %>% log(10) %>% round() %>% add(1)
+  if(is.na(fmr) == TRUE) fmr <- 1
   fmr <- str_pad(1:dim(all_MS)[2], width = fmr, pad = "0")
   colnames(mat) <- paste0(nm_h5, "_", fmr)
 
